@@ -1,0 +1,57 @@
+:toc:
+
+= venvを使った仮想環境構築手順
+
+== 設定手順
+
+=== venv作成/起動/停止
+
+[source, bash]
+----
+# 仮想環境の作成
+$ python -m venv .venv # .venv部分は好きな名前でOK
+
+# 仮想環境の起動(mac/linux)
+$ source .venv/bin/activate
+
+# 仮想環境の起動(Windows)
+# powershellの実行ポリシーに注意
+$ .venv\Scripts\Activate.ps1
+
+# 仮想環境の停止(mac/windows)
+$ deactivate
+----
+
+
+=== ライブラリのインストール
+
+==== ライブラリを指定したインストール
+
+[source, bash]
+----
+# ライブラリのインストール
+(.venv) $ pip install [library]
+
+# 例
+(.venv) $ pip install flask pandas
+----
+
+
+
+==== requirements.txtを使ったライブラリインストール
+
+[source, bash]
+----
+# 新環境側起動後に取り込む
+(.venv)$ pip install -r requirements.txt
+----
+
+
+=== requirements.txtの出力
+
+[source, bash]
+----
+# 使用しているライブラリ情報を出力
+(.venv)$ pip freeze > requirements.txt
+----
+

@@ -3,7 +3,7 @@ import requests
 from typing import Optional,Tuple
 
 
-class PleasanterConnecter:
+class PleasanterConnector:
     def __init__(self, pl_addr: str , api_key: str) -> None:
         self.pl_addr: str = pl_addr
         self.api_key: str = api_key

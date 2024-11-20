@@ -13,6 +13,18 @@ class PleasanterConnecter:
             "apiKey": self.api_key,
         }
 
+    def _handle_http_error(self, status_code: int) -> dict:
+        """Handle non-200 HTTP status codes"""
+        return {
+            "Result": False,
+            "ErrorMsg": {
+                "ErrorType": str(status_code),
+                "Message": "HTTP Request Error"
+            }
+        }
+
+
+
     def _process_request(self, api_url:str, payload:dict) -> dict:
         """Common process request to pleasanter api"""
         try:
@@ -27,14 +39,7 @@ class PleasanterConnecter:
             # HTTPレスポンスの判定
             if request_post.status_code != 200:
                 # 200以外のレスポンス
-                error_msg:dict = {
-                    "Result": False,
-                    "ErrorMsg": {
-                        "ErrorType" : str(request_post.status_code),
-                        "Message" : "HTTP Request Error"
-                    }
-                }
-                return error_msg
+                return self._handle_http_error(request_post.status_code)
 
             else:
                 # レスポンスをjson形式に変換
@@ -117,7 +122,7 @@ class PleasanterConnecter:
                 result_dict: dict = {
                     "Result": True,
                     "Data": {
-                        "edit_col_list": col_list
+                        "EditColsList": col_list
                     }
                 }
 

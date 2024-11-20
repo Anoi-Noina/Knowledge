@@ -154,3 +154,87 @@ class PleasanterConnector:
         # リクエスト送信時のエラー
         else:
             return response_dict
+
+    def get_item_record_by_id_in_site(
+            self,
+            site_id: str,
+            record_id: str,
+            get_edit_cols: bool = True
+        ) -> dict:
+        """return dict(result request and data)
+        Args:
+        - get_edit_cols: 
+            - True: columns in edit tab
+            - False: columns in grid(view) tab
+        """
+
+        if site_id == record_id:
+            result_dict: dict = {
+                "Result": False,
+                "ErrorMsg": {
+                    "ErrorType": "The ID is invalid.",
+                    "Message": "The same value has been specified for both the record ID and the site ID."
+                }
+            }
+            return result_dict
+
+        # payloadを作成
+        payload: dict = self.paylaod
+        payload.update({
+            "View": {
+                # Pleasanter上の表示名で取得
+                "ApiDataType": "KeyValues",
+                
+            }
+        })
+
+        # エディットカラムを取得
+        if get_edit_cols:
+            request_get_cols: dict = self._get_columns_in_edit_tab(site_id=site_id)
+            
+            # エディットカラムを取得するためのリクエストの処理
+            if request_get_cols["Result"]:
+                # エディットカラムで指定したカラムをpayloadの条件に追加
+                payload["View"]["GridColumns"] = request_get_cols["Data"]["EditColsList"]
+
+            else:
+                # エディットカラム取得時のリクエストのエラー
+                return response_dict
+
+        # URLを作成
+        url = self.pl_addr + "api/items/" + str(record_id) + "/get"
+
+        # リクエスト実行
+        response_dict = self._process_request(
+            api_url=url,
+            payload=payload
+        )
+
+        # レスポンスの処理
+        if response_dict['Result']:
+            # リストかつリストの要素が1つであればレコードIDが指定されている
+            if isinstance(response_dict["ResponseData"], list) and len(response_dict["ResponseData"]) == 1:
+                result_dict: dict = {
+                    "Result": True,
+                    "Data": response_dict["ResponseData"]
+                }
+                return result_dict
+            # リスト以外もしくはレコードIDが複数行ある
+            else:
+                result_dict: dict = {
+                    "Result": False,
+                    "ErrorMsg": {
+                        "ErrorType": "The provided ID is incorrect.",
+                        "Message": "The provided ID is site id or folder id."
+                    }
+                }
+                return result_dict
+
+        else:
+            # エディットカラム取得時のリクエストのエラー
+            return response_dict
+
+
+
+
+

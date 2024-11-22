@@ -95,7 +95,7 @@ class PleasanterConnector:
         url = self.pl_addr + "api/items/" + str(site_id) + "/getsite"
 
         # pleasanter標準のカラムで使用するカラムを指定
-        default_cols: list = ['CreatedTime', 'UpdatedTime']
+        default_cols: list = ['CreatedTime', 'UpdatedTime', "Creator", "Updator"]
 
         # APIにリクエストするデータを作成
         payload: dict = self.paylaod

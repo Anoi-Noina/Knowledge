@@ -81,6 +81,71 @@ class PleasanterConnector:
                 }
             }
 
+    def get_mapping_cols(self, site_id: str):
+        """Return Dict
+        Explain:
+            - This function retrieves the default column names and display column names of Pleasenter as key-value pairs.
+        """
+        
+        # URLを作成
+        url = self.pl_addr + "api/items/" + str(site_id) + "/getsite"
+
+        # APIにリクエストするデータを作成
+        payload: dict = self.paylaod
+
+        # リクエスト実行
+        response_dict = self._process_request(
+            api_url=url,
+            payload=payload
+        )
+
+        # リクエストの判定
+        if response_dict["Result"]:
+            # 対象IDがサイトかどうかの確認
+            if response_dict["ResponseData"]["ReferenceType"] in ["Results", "Issues"]:
+                # デフォルト名と表示名を取得
+                mapping_cols = {
+                    "CreatedTime": "CreatedTime",
+                    "UpdatedTime": "UpdatedTime",
+                    "Updator": "Updator",
+                    "Creator": "Creator",
+                }
+                for col_dict in response_dict["ResponseData"]["SiteSettings"]["Columns"]:
+                    mapping_cols[col_dict["ColumnName"]] = col_dict["LabelText"]
+
+                return {
+                    "Result": True,
+                    "ResponseData": {
+                        "MappingColsDict": mapping_cols
+                    }
+                }
+            
+
+            elif response_dict["ResponseData"]["ReferenceType"] == "Sites":
+                # ディレクトリサイトがsite_idとして指定されたらNGを返す
+                return {
+                    "Result": False,
+                    "ErrorMsg": {
+                        "ErrorType": "Uncorrect site id.",
+                        "Message": "This id is directly site id."
+                    }
+                }
+
+            else:
+                # 想定外のエラー
+                return {
+                    "Result": False,
+                    "ErrorMsg": {
+                        "ErrorType": "Unexpected.",
+                        "Message": "Successfully response. But Unexpected ReferenceType."
+                    }
+                }
+
+        # リクエスト送信時のエラー
+        else:
+            return response_dict
+
+
 
 
     def get_columns_in_edit_tab(self, site_id: str) -> dict:

@@ -279,6 +279,29 @@ class PleasanterConnector:
             # エディットカラム取得時のリクエストのエラー
             return response_dict
 
+    def setup_search_type(self, cols: list, search_type:str) -> dict:
+        """return dict(result request and data)
+        Args:
+        - cols: 
+            - Set list to want to setup search type
+        - search_type: 
+            - Single:
+                - ExactMatch or PartialMatch or ForwardMatch
+            - Multi
+                - ExactMatchMultiple or PartialMatchMultiple or ForwardMatchMultiple
+        - reference
+            - https://pleasanter.org/ja/manual/api-view
+        """
+        setup_dict: dict = {}
+
+        for col in cols:
+            setup_dict[col] = search_type
+
+        return {
+            "Result": True,
+            "ResponseData": setup_dict
+        }
+
 
 
 

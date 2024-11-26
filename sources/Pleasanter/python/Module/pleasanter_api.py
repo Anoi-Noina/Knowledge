@@ -23,8 +23,6 @@ class PleasanterConnector:
             }
         }
 
-
-
     def _process_request(self, api_url:str, payload:dict) -> dict:
         """Common process request to pleasanter api"""
         try:
@@ -44,11 +42,25 @@ class PleasanterConnector:
             else:
                 # レスポンスをjson形式に変換
                 data: dict = request_post.json()
+
                 # 返り値を作成
-                return {
+                response_dict: dict = {
                     "Result": True,
                     "ResponseData": data["Response"]["Data"]
                 }
+
+                # オフセット位置なども取得
+                if "Offset" in data["Response"].keys() :
+                    response_dict["Offset"] = data["Response"]["Offset"]
+
+                if "PageSize" in data["Response"].keys() :
+                    response_dict["PageSize"] = data["Response"]["PageSize"]
+
+                if "TotalCount" in data["Response"].keys() :
+                    response_dict["TotalCount"] = data["Response"]["TotalCount"]
+
+                # 返り値を作成
+                return response_dict
 
         # タイムアウト
         except requests.exceptions.ConnectTimeout as e:
@@ -145,9 +157,6 @@ class PleasanterConnector:
         else:
             return response_dict
 
-
-
-
     def get_columns_in_edit_tab(self, site_id: str) -> dict:
         """Return Dict
         Explain:
@@ -219,12 +228,11 @@ class PleasanterConnector:
         """return dict(result request and data)
         Args:
         - grid_columns: 
-            - True: columns in edit tab
-            - False: columns in grid(view) tab
+            - List the column names you want to retrieve.
+            - default: None
         """
         # site_idとrecord_idに同じ値がセットされた
         if site_id == record_id:
-
             return  {
                 "Result": False,
                 "ErrorMsg": {
@@ -232,7 +240,6 @@ class PleasanterConnector:
                     "Message": "The same value has been specified for both the record ID and the site ID."
                 }
             }
-            return result_dict
 
         # payloadを作成
         payload: dict = self.paylaod
@@ -302,7 +309,88 @@ class PleasanterConnector:
             "ResponseData": setup_dict
         }
 
+    def get_item_records(
+            self,
+            site_id: str,
+            grid_columns: Optional[list] = None,
+            view_filters: Optional[dict] = None,
+            search_type_filters: Optional[dict] = None,
+        ) -> dict:
+        """return dict(result request and data)
+        Args:
+        - grid_columns:
+        - view_filters: 
+        - search_type_filters:
+        """
 
+        # 初期値を設定
+        offset: int = 0
+        page_size: int = 200
+        total_count: int = 1
+        records: list = []
 
+        # URLを作成
+        url = self.pl_addr + "api/items/" + str(site_id) + "/get"
 
+        # payloadを作成
+        payload: dict = self.paylaod
+        payload.update({
+            "View": {
+                # Pleasanter上の表示名で取得
+                "ApiDataType": "KeyValues",
+                # 検索条件の指定
+                "ColumnFilterHash": view_filters,
+                # 検索条件の一致方式の指定
+                "ColumnFilterSearchTypes": search_type_filters,
+                # グリッドカラムを指定
+                "GridColumns": grid_columns,
+            }
+        })
 
+        # 一度に取得できる件数が200と仕様で決まっているのでループする
+        while offset < total_count:
+
+            # オフセット位置を指定
+            payload["Offset"] = offset
+
+            # リクエスト実行
+            response_dict = self._process_request(
+                api_url=url,
+                payload=payload
+            )
+
+            # レスポンスの処理
+            if response_dict['Result']:
+
+                # 対象IDがフォルダの場合、辞書型で返ってくるのでNG
+                if isinstance(response_dict["ResponseData"],dict):
+                    error_msg:dict = {
+                        "Result": True,
+                        "ErrorMsg": {
+                            "ErrorType": "The provided ID is incorrect.",
+                            "Message": "The provided ID is folder id."
+                        }
+                    }
+                    return (False, error_msg)
+
+                # データがリストであればレコードが取得できている
+                elif isinstance(response_dict["ResponseData"], list):
+                    # レコード数とページサイズを取得
+                    total_count = response_dict['TotalCount']
+                    page_size = response_dict['PageSize']
+                    # レコードを取得
+                    for data in response_dict['ResponseData']:
+                        records.append(data)
+                    # offsetをインクリメントする
+                    offset = offset + page_size
+
+            # すべての行を取得し終えたら値を返す
+            result_dict: dict = {
+                "Result": True,
+                "ResponseData": records
+            }
+            return result_dict
+
+        else:
+            # リクエスト失敗
+            return response_dict

@@ -415,6 +415,8 @@ class PleasanterConnector:
         - search_type_filters:
         """
 
+        # TODO: 指定したsite_idがテーブル内のレコードでもデータ送信できてしまう。
+
         # URLを作成
         url = self.pl_addr + "api/items/" + str(site_id) + "/create"
 

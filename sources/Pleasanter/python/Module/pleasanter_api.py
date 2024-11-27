@@ -443,3 +443,43 @@ class PleasanterConnector:
         # リクエスト送信時のエラー
         else:
             return response_dict
+
+    def update_single_record(
+            self,
+            record_id: str,
+            update_data: dict,
+        ) -> dict:
+        """return dict(result request and data)
+        This function is used to update a single record.
+        Args:
+        - grid_columns:
+        - view_filters: 
+        - search_type_filters:
+        """
+
+        # URLを作成
+        url = self.pl_addr + "api/items/" + str(record_id) + "/update"
+
+        # APIにリクエストするデータを作成
+        payload: dict = self.paylaod
+
+        # 送信データをPayloadに含める
+        payload.update(update_data)
+
+        # リクエスト実行
+        response_dict = self._process_request(
+            api_url=url,
+            payload=payload
+        )
+
+        # リクエストの判定
+        if response_dict["Result"]:
+            # Trueであればデータ送信できている
+            # 結果の出力
+            return {
+                "Result": True,
+            }
+
+        # リクエスト送信時のエラー
+        else:
+            return response_dict

@@ -46,18 +46,24 @@ class PleasanterConnector:
                 # 返り値を作成
                 response_dict: dict = {
                     "Result": True,
-                    "ResponseData": data["Response"]["Data"]
                 }
 
-                # オフセット位置なども取得
-                if "Offset" in data["Response"].keys() :
-                    response_dict["Offset"] = data["Response"]["Offset"]
+                # Responseキーがある場合は返り値に含める
+                if "Response" in data.keys():
 
-                if "PageSize" in data["Response"].keys() :
-                    response_dict["PageSize"] = data["Response"]["PageSize"]
+                    # Responseにデータがある場合は返り値に含める
+                    if "Data" in data["Response"].keys() :
+                        response_dict["ResponseData"] = data["Response"]["Data"]
 
-                if "TotalCount" in data["Response"].keys() :
-                    response_dict["TotalCount"] = data["Response"]["TotalCount"]
+                    # オフセット位置なども取得
+                    if "Offset" in data["Response"].keys() :
+                        response_dict["Offset"] = data["Response"]["Offset"]
+
+                    if "PageSize" in data["Response"].keys() :
+                        response_dict["PageSize"] = data["Response"]["PageSize"]
+
+                    if "TotalCount" in data["Response"].keys() :
+                        response_dict["TotalCount"] = data["Response"]["TotalCount"]
 
                 # 返り値を作成
                 return response_dict
@@ -393,4 +399,45 @@ class PleasanterConnector:
 
         else:
             # リクエスト失敗
+            return response_dict
+
+
+    def insert_single_record(
+            self,
+            site_id: str,
+            insert_data: dict,
+        ) -> dict:
+        """return dict(result request and data)
+        This function is used to insert a single record.
+        Args:
+        - grid_columns:
+        - view_filters: 
+        - search_type_filters:
+        """
+
+        # URLを作成
+        url = self.pl_addr + "api/items/" + str(site_id) + "/create"
+
+        # APIにリクエストするデータを作成
+        payload: dict = self.paylaod
+
+        # 送信データをPayloadに含める
+        payload.update(insert_data)
+
+        # リクエスト実行
+        response_dict = self._process_request(
+            api_url=url,
+            payload=payload
+        )
+
+        # リクエストの判定
+        if response_dict["Result"]:
+            # Trueであればデータ送信できている
+            # 結果の出力
+            return {
+                "Result": True,
+            }
+
+        # リクエスト送信時のエラー
+        else:
             return response_dict

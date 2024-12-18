@@ -24,7 +24,7 @@ class PleasanterConnector:
         }
 
     def _process_request(self, api_url:str, payload:dict) -> dict:
-        """Common process request to pleasanter api"""
+        """Common process request to Pleasanter API"""
         try:
             # APIにリクエストを送信
             request_post = requests.post(
@@ -78,7 +78,6 @@ class PleasanterConnector:
                 }
             }
 
-
         # 接続エラー
         except requests.exceptions.ConnectionError as e:
             return {
@@ -99,10 +98,8 @@ class PleasanterConnector:
                 }
             }
 
-    def get_mapping_cols(self, site_id: str):
-        """Return Dict
-        Explain:
-            - This function retrieves the default column names and display column names of Pleasenter as key-value pairs.
+    def get_mapping_cols(self, site_id: str) -> dict:
+        """This function gets the default column names and display column names of Pleasenter as key-value pairs.
         """
         
         # URLを作成
@@ -137,7 +134,6 @@ class PleasanterConnector:
                         "MappingColsDict": mapping_cols
                     }
                 }
-            
 
             elif response_dict["ResponseData"]["ReferenceType"] == "Sites":
                 # ディレクトリサイトがsite_idとして指定されたらNGを返す
@@ -164,11 +160,7 @@ class PleasanterConnector:
             return response_dict
 
     def get_columns_in_edit_tab(self, site_id: str) -> dict:
-        """Return Dict
-        Explain:
-            - This function retrieves and processes site information required for using GridColumn in edit tab.
-        Args:
-        - site_id
+        """This function gets GridColumn for the edit tab.
         """
         
         # URLを作成
@@ -293,7 +285,7 @@ class PleasanterConnector:
             return response_dict
 
     def setup_search_type(self, cols: list, search_type:str) -> dict:
-        """return dict(result request and data)
+        """This function setup searchtype for pleasnater api
         Args:
         - cols: 
             - Set list to want to setup search type
@@ -322,7 +314,7 @@ class PleasanterConnector:
             view_filters: Optional[dict] = None,
             search_type_filters: Optional[dict] = None,
         ) -> dict:
-        """return dict(result request and data)
+        """This function gets records.
         Args:
         - grid_columns:
         - view_filters: 
@@ -407,8 +399,7 @@ class PleasanterConnector:
             site_id: str,
             insert_data: dict,
         ) -> dict:
-        """return dict(result request and data)
-        This function is used to insert a single record.
+        """This function inserts a single record.
         Args:
         - grid_columns:
         - view_filters: 
@@ -449,8 +440,7 @@ class PleasanterConnector:
             record_id: str,
             update_data: dict,
         ) -> dict:
-        """return dict(result request and data)
-        This function is used to update a single record.
+        """This function updates a single record.
         Args:
         - grid_columns:
         - view_filters: 

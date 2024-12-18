@@ -12,3 +12,8 @@ __pycache__/
 
 # MacOS
 .DS_Store
+
+
+
+# Pleasanter API接続情報用jsonファイル
+pleasanter_connection_info.json

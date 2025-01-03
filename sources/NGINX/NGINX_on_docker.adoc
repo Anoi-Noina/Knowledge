@@ -1,0 +1,93 @@
+= Dockerを使ったNGINX構築
+
+== 本ドキュメントのゴール
+. Dockerを使ってNGINXを稼働させる
+. NGINXを稼働させるWebサーバー内のHTMLファイルを表示するところまで
+
+== 環境
+* ハードウェア
+  ** Raspberry Pi 4
+* OS
+  ** Ubuntu 24.04.1 LTS
+* 前提条件
+  ** DockerおよびDocker Composeのインストール済みであること
+
+== 手順
+
+=== NGINXコンテナの起動
+
+. コンテナ用のディレクトリを作成
+
+    [source,bash]
+    ----
+    $ mkdir -p docker/nginx_sample
+    $ cd docker/nginx_sample
+    ----
+
+. 任意のディレクトリに`docker-compose.yml`を作成
+
+    [source,yaml]
+    ----
+    include::./include/nginx_conf_sample.yaml[]
+    ----
+
+. マウント用のフォルダを作成
+
+    [source,bash]
+    ----
+    $ mkdir -p ./nginx/html
+    $ mkdir -p ./nginx/conf.d
+    ----
+
+. confディレクトリにnginxのconfファイルを作成
+
+    [source,bash]
+    ----
+    $ nano ./nginx/conf.d/default.conf
+    ----
+
+. confファイルを編集する
+
+    [source,conf]
+    ----
+    server {
+        listen       80;
+        server_name  localhost;
+        location / {
+            # docker内のディレクトリを指定
+            root /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+    }
+    ----
+
+. HTMLファイルを作成する
+
+    [source,bash]
+    ----
+    $ nano ./nginx/html/index.html
+    ----
+
+. HTMLファイルを編集する
+
+    [source,html]
+    ----
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Welcome to NGINX</title>
+    </head>
+    <body>
+        <h1>Hello from NGINX running in Docker Compose!</h1>
+    </body>
+    </html>
+    ----
+
+. コンテナを起動する
+
+    [source,bash]
+    ----
+    $ docker compose up -d
+    ----
+
+. 14080番ポートにアクセスして、 `index.html` の内容が表示されたことを確認

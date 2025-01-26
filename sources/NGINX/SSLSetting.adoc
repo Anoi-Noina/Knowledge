@@ -1,0 +1,107 @@
+= NGINXを使ってSSL通信を試してみる
+
+
+== 環境
+* HW
+    ** Raspberry Pi 4
+* OS
+    ** Ubuntu 24.04.1 LTS
+
+== 手順
+
+=== 自己署名証明書を作成
+
+. 証明書を作成
++
+[source, bash]
+----
+$ mkdir certs
+
+# 10年間有効な証明書を作成する
+$ openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+  -keyout certs/selfsigned.key \
+  -out certs/selfsigned.crt \
+  -subj "/CN=localhost"
+
+$ ls certs/
+>>> selfsigned.crt  selfsigned.key
+----
+
+* `-x509`
+    ** X.509 は証明書の標準フォーマットであり、ほとんどのSSL/TLSで使用
+* `-nodes`
+    ** 秘密鍵（selfsigned.key）を暗号化せず、パスフレーズを要求されない形式で保存
+* `-days 3650`
+    ** 証明書の有効期限を設定
+* `-out certs/selfsigned.crt`
+    ** 生成した自己署名証明書を certs/selfsigned.crt に保存
+* `-subj "/CN=localhost"`
+    ** 証明書の「サブジェクト名（Subject）」を設定
+
+
+=== NGINX用のDocker Composeを作成
+
+. ディレクトリを作成
++
+[source, bash]
+----
+$ mkdir docker/nginx_ssl
+$ cd docker/nginx_ssl
+
+$ mkdir ./nginx_conf ./certs ./html
+----
+
+. `compose.yml` を作成
++
+[source, bash]
+----
+$ nano compose.yml
+----
+
++
+[source, yaml]
+----
+include::include/ssl_compose.yml[]
+----
+
+. nginx用のconfigを作成
+
++
+[source, bash]
+----
+$ nano .nginx_conf/default.conf
+----
+
++
+[source, conf]
+----
+include::include/nginx_ssl.conf[]
+----
+
+. opensslで作成した鍵をコピーする
++
+[source, bash]
+----
+$ cp /home/[user]/certs/selfsigned.crt certs/
+$ cp /home/[user]/certs/selfsigned.key certs/
+----
+
+. htmlファイルを作成する
++
+[source, bash]
+----
+$ cp /home/[user]/certs/selfsigned.crt certs/
+$ cp /home/[user]/certs/selfsigned.key certs/
+----
+
+. docker composeを実行
++
+[source, bash]
+----
+$ docker compose up -d
+----
+
+=== httpsでアクセス
+
+. `https://[Server URL]` でアクセスして、htmlが表示されることを確認
+    * 警告画面が出てくるので、詳細から表示させる

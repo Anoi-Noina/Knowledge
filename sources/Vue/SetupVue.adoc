@@ -1,0 +1,60 @@
+= nvm+npm+viteでVueプロジェクトを構築する手順
+
+== 設定手順(mac)
+
+=== nvmのインストール
+
+[source, bash]
+----
+# 最新コマンドを確認
+# https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating
+$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+# ターミナルを再起動してから実行
+$ nvm --version
+>>> 0.40.1
+
+# LTSのnode.jsをインストール
+$ nvm install --lts
+
+# 最新版に切り替え
+$ nvm use --lts
+
+$ node -v
+>>> v22.14.0
+
+$ npm --version
+>>> 10.9.2
+----
+
+=== Vue.jsのプロジェクトの作成
+
+[source, bash]
+----
+# viteのバージョン一覧を取得
+$ npm show vite versions --json
+
+# 今いるディレクトリをvueプロジェクト化
+$ npm create vite@5.2.0 . --template vue-ts
+>>> Select a framework: › Vue
+>>> Select a variant: › TypeScript
+
+# プロジェクトの依存関係をインストールするコマンド
+$ npm install
+----
+
+== VSCodeの拡張機能
+
+* Vue - Official
+* Prettier
+* ESLint
+* Auto Close Tag
+* Path Intellisense
+
+=== Prettier の設定
+. Prettier はソースコードを整形してくれるコードフォーマッター
+** 設定＞ワークスペースを開く
+. Editor: Default Formatter から Prettier を選択
+. Editor: Format on Paste を有効化
+. Editor: Format on Save を有効化
+. Prettier: Single Quota を有効化

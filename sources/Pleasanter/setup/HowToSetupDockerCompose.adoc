@@ -69,10 +69,7 @@ include::./compose.yml[]
 $ docker compose run --rm codedefiner _rds /l "ja" /z "Asia/Tokyo"
 
 # 下記が表示されるので[y]を入力
->>> <INFO> Configurator.OutputLicenseInfo: This edition is "Community Edition".
->>> Type "y" (yes) if the license is correct, otherwise type "n" (no).
-
->>> <SUCCESS> Starter.ConfigureDatabase: Database configuration has been completed.
+# Type y (yes) if the license is correct, otherwise type n (no).
 ----
 
 . pleasanterを起動する
@@ -87,9 +84,75 @@ $ docker compose up -d pleasanter
 . `http://[IP_address_by_host]:13500/` にアクセスしてログイン画面が表示されることを確認
 
 
+=== PleasanterとPostgresを別端末で起動する手順
+
+
+. DB側の端末にpostgres用の.envファイルを作成する
+
++
+[source, conf]
+----
+include::./pg.env[]
+----
+
+
+. postgres用のcompose.ymlを作成
++
+[source, yaml]
+----
+include::./postgres_compose.yml[]
+----
+
+. postgresを起動
++
+[source, bash]
+----
+$ docker compose up -d
+----
+
+
+. pleasanter側の端末に.envファイルを作成
++
+[source, conf]
+----
+include::./pleasanter.env[]
+----
+
+. pleasanterのcomposeファイルを作成
++
+[source, yaml]
+----
+include::./plea_compose.yml[]
+----
+
+. codedefinerを実行する
+
++
+[source, bash]
+----
+# オプションを指定して日本環境で実行する
+$ docker compose run --rm codedefiner _rds /l "ja" /z "Asia/Tokyo"
+
+# 下記が表示されるので[y]を入力
+# Type y (yes) if the license is correct, otherwise type n (no).
+----
+
+. pleasanterを起動する
+
++
+[source, bash]
+----
+# バックグラウンドで実行
+$ docker compose up -d pleasanter
+----
+
+. `http://[IP_address_by_host]:13500/` にアクセスしてログイン画面が表示されることを確認
+
+
+
+
 == 参考
 * 公式のDocker Hub
     ** https://hub.docker.com/r/implem/pleasanter
-
 
 

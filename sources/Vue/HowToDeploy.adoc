@@ -34,10 +34,11 @@ services:
   app:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - "11080:80"
     volumes:
       - ./dist:/usr/share/nginx/html  # ビルドした静的ファイルをマウント
       - ./conf.d:/etc/nginx/conf.d  # カスタム Nginx 設定ファイルをマウント
+    restart: always
 ----
 
 . マウント用のフォルダを作成

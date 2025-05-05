@@ -1,0 +1,110 @@
+= Vue（Vite）で作ったアプリをNGINX上にデプロイする方法
+
+
+== 本ドキュメントのゴール
+. Vueで作ったアプリをNGINX上にデプロイする
+
+== 環境
+* ハードウェア
+  ** Raspberry Pi 4
+* OS
+  ** Ubuntu 24.04.1 LTS
+* 前提条件
+  ** DockerおよびDocker Composeのインストール済みであること
+
+== 手順
+
+=== NGINXコンテナの起動
+
+. コンテナ用のディレクトリを作成
++
+[source,bash]
+----
+$ mkdir -p docker/nginx_vue
+$ cd docker/nginx_vue
+----
+
+. 任意のディレクトリに`docker-compose.yml`を作成
++
+[source,yaml]
+----
+version: '3.8'
+
+services:
+  app:
+    image: nginx:alpine
+    ports:
+      - "11080:80"
+    volumes:
+      - ./dist:/usr/share/nginx/html  # ビルドした静的ファイルをマウント
+      - ./conf.d:/etc/nginx/conf.d  # カスタム Nginx 設定ファイルをマウント
+    restart: always
+----
+
+. マウント用のフォルダを作成
++
+[source,bash]
+----
+# vueのdistを置くフォルダ
+$ mkdir -p ./dist
+# configを置くフォルダ
+$ mkdir -p ./conf.d
+----
+
+. confディレクトリにnginxのconfファイルを作成
++
+[source,bash]
+----
+$ nano conf.d/default.conf
+----
+
+. confファイルを編集する
++
+[source,conf]
+----
+server {
+    listen 80;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+----
+
+
+=== Vueファイルの配布
+
+. Viteでビルドする
++
+[source,bash]
+----
+$ npm run build
+----
+
+
+. distフォルダをNGINXコンテナのマウント先にコピーする
++
+[source,bash]
+----
+$ scp -r dist/ XXX
+----
+
+
+
+=== NGINXの起動
+
+. NGINXコンテナを起動
++
+[source,bash]
+----
+$ docker compose up -d
+----
+
+
+
+=== アプリの確認
+
+. ブラウザからアプリが開けることを確認する

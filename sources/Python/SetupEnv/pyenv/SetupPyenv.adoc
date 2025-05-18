@@ -12,8 +12,10 @@
 +
 [source, bash]
 ----
-sudo apt update
-sudo apt install -y make build-essential libssl-dev zlib1g-dev \
+$ sudo apt update
+
+# 必要なパッケージをインストール
+$ sudo apt install -y make build-essential libssl-dev zlib1g-dev \
   libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
   libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev \
   libffi-dev liblzma-dev git
@@ -24,12 +26,12 @@ sudo apt install -y make build-essential libssl-dev zlib1g-dev \
 +
 [source, bash]
 ----
-curl https://pyenv.run | bash
+$ curl https://pyenv.run | bash
 ----
 
 . ~/.bashrcに下記を追加
 +
-[source, bash]
+[source, txt]
 ----
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init --path)"
@@ -40,24 +42,22 @@ eval "$(pyenv init -)"
 +
 [source, bash]
 ----
-source ~/.bashrc
+$ source ~/.bashrc
 ----
 
 . pyenvコマンドが実行できることを確認
 +
 [source, bash]
 ----
-pyenv --version
-
-# pyenv 2.5.7
+$ pyenv --version
+// pyenv 2.5.7
 ----
 
 . リストを取得
 +
 [source, bash]
 ----
-pyenv install --list 
-
+$ pyenv install --list 
 ----
 
 
@@ -65,20 +65,20 @@ pyenv install --list
 +
 [source, bash]
 ----
-python -V
+$ python -V
 // Python 3.11.2
 
 # install
-pyenv install 3.10.17
+$ pyenv install 3.10.17
 
 # globalを設定
-pyenv global 3.10.17
+$ pyenv global 3.10.17
 
 # 設定を確認
-pyenv global
+$ pyenv global
 // 3.10.17
 
-python -V
+$ python -V
 // Python 3.10.17
 ----
 
@@ -88,17 +88,18 @@ python -V
 [source, bash]
 ----
 # ローカルの設定
-pyenv local 3.10.17
+$ pyenv local 3.10.17
 
 # ファイルが作成される
-ls -a
+$ ls -a
 // .python-version
 
-python -V
+$ python -V
 // 3.10.17
 
 # 切り替える
-pyenv local system
-python -V
+$ pyenv local system
+
+$ python -V
 // Python 3.11.2
 ----

@@ -1,17 +1,22 @@
 #!/bin/bash
 set -e
 
-CONFIG_FILE="/etc/netplan/01-netcfg.yaml"
+CONFIG_FILE="/etc/netplan/99-custom.yaml"
 
-# バックアップ作成
-sudo cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
+
+# ファイルが存在する場合にバックアップ作成
+if [ -f "$CONFIG_FILE" ]; then
+    sudo cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
+    echo "バックアップを作成しました: ${CONFIG_FILE}.bak"
+else
+    echo "元の設定ファイルが存在しません: $CONFIG_FILE"
+fi
 
 # 一時ファイルへ出力
 TMP_FILE=$(mktemp)
 
 echo "network:" > "$TMP_FILE"
 echo "  version: 2" >> "$TMP_FILE"
-echo "  renderer: networkd" >> "$TMP_FILE"
 echo "  ethernets:" >> "$TMP_FILE"
 
 default_route_set=false
@@ -33,7 +38,9 @@ while true; do
             y|Y )
                 read -p "固定IPアドレス (例: 192.168.1.100/24): " ipaddr
                 echo "    $iface:" >> "$TMP_FILE"
+                echo "      optional: true" >> "$TMP_FILE"
                 echo "      dhcp4: false" >> "$TMP_FILE"
+                echo "      dhcp6: false" >> "$TMP_FILE"
                 echo "      addresses:" >> "$TMP_FILE"
                 echo "        - $ipaddr" >> "$TMP_FILE"
                 break
@@ -43,7 +50,9 @@ while true; do
                 read -p "DNS（カンマ区切り、例: 8.8.8.8,1.1.1.1）: " dns
 
                 echo "    $iface:" >> "$TMP_FILE"
+                echo "      optional: true" >> "$TMP_FILE"
                 echo "      dhcp4: false" >> "$TMP_FILE"
+                echo "      dhcp6: false" >> "$TMP_FILE"
                 echo "      addresses:" >> "$TMP_FILE"
                 echo "        - $ipaddr" >> "$TMP_FILE"
 

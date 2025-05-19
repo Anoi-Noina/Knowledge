@@ -15,7 +15,6 @@ read -p "使用するNTPサーバをIPアドレスで入力してください（
 sudo tee "$CONFIG_FILE" > /dev/null <<EOF
 [Time]
 NTP=${ntp_servers}
-FallbackNTP=133.243.238.164
 EOF
 
 # サービスを再起動して反映

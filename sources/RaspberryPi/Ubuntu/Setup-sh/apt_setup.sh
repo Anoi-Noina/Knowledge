@@ -11,7 +11,7 @@ echo "不要なパッケージを削除中..."
 sudo apt autoremove -y
 
 echo "不要パッケージ（LibreOfficeなど）を削除中..."
-sudo apt purge -y libreoffice* thunderbird rhythmbox ubuntu-software snapd
+sudo apt purge -y libreoffice* thunderbird*
 
 sudo apt autoremove -y
 

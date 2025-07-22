@@ -1,0 +1,93 @@
+:toc:
+
+= Mac PCでのPython環境構築
+
+== XCodeとHomebrewの設定
+
+. Xcodeをインストールする
++
+[source, bash]
+----
+xcode-select --install
+----
+
+. Homebrewをインストールする
++
+[source, bash]
+----
+# Homebrew バージョン確認（まだ入っていない場合はエラー）
+brew --version
+
+# Homebrew をインストール（公式スクリプト）
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# パスを設定（Apple Siliconの場合）
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# 動作確認
+brew doctor
+----
+
+. パス確認
++
+[source, bash]
+----
+# /opt/homebrew/bin が含まれていればOK
+echo $PATH
+
+# 無ければ ~/.zshrc に追記：
+export PATH="/opt/homebrew/bin:$PATH"
+
+# 設定を反映
+source ~/.zshrc
+----
+
+== pyenvの設定
+
+. pyenvをインストール
++
+[source, bash]
+----
+brew install pyenv
+----
+
+. ~/.zprofile に書く（ログインシェル用の初期化設定）
++
+[source, bash]
+----
+# pyenvのrootパスと、pyenvのバイナリをPATHに追加
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+# ログイン時（macのTerminal起動時など）にpyenvを有効化する
+# --pathオプションを使うことで、PATHの設定などログイン時に必要な処理が行われる
+eval "$(pyenv init --path)"
+----
+
+. ~/.zshrc に書く（対話シェル用の初期化設定）
++
+[source, bash]
+----
+# ターミナルでの対話的な操作（コマンド実行など）に必要な初期化処理
+eval "$(pyenv init -)"
+----
+
+. 設定を反映
++
+[source, bash]
+----
+source ~/.zprofile
+source ~/.zshrc
+----
+
+== Pythonをインストールする
+
+. 任意のバージョンのPythonをインストール
++
+[source, bash]
+----
+pyenv install 3.11.9
+pyenv global 3.11.9
+python --version
+----

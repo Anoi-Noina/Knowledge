@@ -1,0 +1,75 @@
+= Rocky Linuxのセットアップ
+
+
+== 環境
+
+* OS
+    ** Rocky linux 10
+
+
+== 手順
+
+=== OSイメージの準備とインストール
+
+. Rokcy Linuxのイメージをダウンロード
+    * https://rockylinux.org/ja-JP/download
+
+. balenaEtcherを使ってUSBなどにisoファイルを書き込む
+
+. Windows PCにisoファイルを書き込んだUSBなどを差し込み、F12を連打しながら起動
+
+. Install Rocky linux 10.0と表示されるのでEnterをクリック
+
+. インストールが終わるまで待つ
+
+== Rocky Linux 10の初期設定
+
+=== 初回起動
+
+. Welcome to Linuxで言語を選択
+
+. Localizationのkeyboardを選択して、プラスボタン->Japaneseを選択し優先度を上げ、USキーボードを削除してDoneをクリック
+
+. LocalizationのTime Zoneをクリックして、Asia/Tokyoをクリック
+
+. User SettingsのRoot Accountをクリックして、rootユーザーを有効化する
+
+. User SettingsのUser Creationをクリックして、ユーザーを作成
+
+. SystemのInstallation Destinationをクリックして、Partitioningを設定
+    * 今回は既存ストレージにあるファイルすべて消すのですべてdelete
+
+. Begin Installationをクリック
+
+. インストール終わったらReboot Systemをクリック、USBを抜く
+
+
+=== ネットワーク設定
+
+==== WiFi
+
+nmcli device status
+
+nmcli device wifi list
+
+nmcli device wifi connect "SSID" password "パスワード"
+
+
+nmcli connection modify "SSID名" ipv4.addresses 192.168.1.100/24
+nmcli connection modify "SSID名" ipv4.gateway 192.168.1.1
+nmcli connection modify "SSID名" ipv4.dns "8.8.8.8"
+nmcli connection modify "SSID名" ipv4.method manual
+
+
+=== 時刻設定
+
+sudo nano /etc/chrony.conf
+
+server ntp.nict.jp iburst
+
+sudo systemctl restart chronyd
+
+=== パッケージ更新
+
+dnf update -y
+

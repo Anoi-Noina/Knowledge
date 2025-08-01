@@ -1,75 +1,103 @@
 = Rocky Linuxのセットアップ
 
-
 == 環境
 
 * OS
-    ** Rocky linux 10
-
+** Rocky Linux 10
 
 == 手順
 
 === OSイメージの準備とインストール
 
-. Rokcy Linuxのイメージをダウンロード
-    * https://rockylinux.org/ja-JP/download
+. Rocky Linuxのイメージをダウンロード
+  * https://rockylinux.org/ja-JP/download
 
-. balenaEtcherを使ってUSBなどにisoファイルを書き込む
+. balenaEtcherを使ってUSBなどにISOファイルを書き込む
 
-. Windows PCにisoファイルを書き込んだUSBなどを差し込み、F12を連打しながら起動
+. Windows PCに作成したUSBを差し込み、F12を連打してブートメニューを表示
 
-. Install Rocky linux 10.0と表示されるのでEnterをクリック
+. `Install Rocky Linux 10.0` を選択してEnter
 
-. インストールが終わるまで待つ
+. インストールが完了するまで待つ
 
 == Rocky Linux 10の初期設定
 
 === 初回起動
 
-. Welcome to Linuxで言語を選択
+. "Welcome to Linux" 画面で言語を選択
 
-. Localizationのkeyboardを選択して、プラスボタン->Japaneseを選択し優先度を上げ、USキーボードを削除してDoneをクリック
+. `Localization` → `Keyboard` を選択し、[+] ボタンで `Japanese` を追加
+  * 優先度を上げ、`USキーボード` を削除 → `Done`
 
-. LocalizationのTime Zoneをクリックして、Asia/Tokyoをクリック
+. `Localization` → `Time Zone` を選択し、`Asia/Tokyo` を指定
 
-. User SettingsのRoot Accountをクリックして、rootユーザーを有効化する
+. `User Settings` → `Root Account` で root ユーザーを有効化
 
-. User SettingsのUser Creationをクリックして、ユーザーを作成
+. `User Settings` → `User Creation` でユーザーを作成
 
-. SystemのInstallation Destinationをクリックして、Partitioningを設定
-    * 今回は既存ストレージにあるファイルすべて消すのですべてdelete
+. `System` → `Installation Destination` でパーティションを設定
+  * 既存ストレージを全削除して初期化
 
-. Begin Installationをクリック
+. `Begin Installation` をクリック
 
-. インストール終わったらReboot Systemをクリック、USBを抜く
-
+. インストール完了後、`Reboot System` をクリック → USBを抜く
 
 === ネットワーク設定
 
-==== WiFi
+==== Wi-Fi接続
 
+[source, bash]
+----
+# 接続可能なデバイス一覧を表示
 nmcli device status
 
+# 利用可能なWi-Fi一覧を表示
 nmcli device wifi list
 
+# Wi-Fiに接続（SSIDとパスワードを指定）
 nmcli device wifi connect "SSID" password "パスワード"
 
-
+# IPアドレスを静的に設定
 nmcli connection modify "SSID名" ipv4.addresses 192.168.1.100/24
-nmcli connection modify "SSID名" ipv4.gateway 192.168.1.1
-nmcli connection modify "SSID名" ipv4.dns "8.8.8.8"
-nmcli connection modify "SSID名" ipv4.method manual
 
+# デフォルトゲートウェイを設定
+nmcli connection modify "SSID名" ipv4.gateway 192.168.1.1
+
+# DNSサーバーを設定
+nmcli connection modify "SSID名" ipv4.dns "8.8.8.8"
+
+# IPv4設定を手動に切り替え
+nmcli connection modify "SSID名" ipv4.method manual
+----
 
 === 時刻設定
 
+[source, bash]
+----
+# NTPサーバーを chrony 設定ファイルに追加
 sudo nano /etc/chrony.conf
+# （ファイル内に以下を追加）
+# server ntp.nict.jp iburst
 
-server ntp.nict.jp iburst
-
+# chronyd を再起動して反映
 sudo systemctl restart chronyd
+----
 
-=== パッケージ更新
+=== パッケージの更新
 
-dnf update -y
+[source, bash]
+----
+# システム全体のパッケージを最新に更新
+sudo dnf update -y
+----
 
+=== SSHの設定
+
+[source, bash]
+----
+# OpenSSHサーバーをインストール
+sudo dnf install -y openssh-server
+
+# SSHサービスを有効化し、同時に起動
+sudo systemctl enable --now sshd
+----

@@ -33,3 +33,31 @@ def calc_corr_with_target_pvalues(
 
     return pd.DataFrame(results)
 
+def summarize(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    カラムごとの基礎統計値を取得
+
+    Parameters:
+    - df: 対象のDataFrame
+
+    Returns:
+    - df: 集計結果
+    """
+    summary = pd.DataFrame()
+
+    summary['dtype'] = df.dtypes # 型
+    summary['count'] = df.count() # 件数
+    summary['unique'] = df.nunique() # ユニーク件数
+    summary['nan_cnt'] = df.isna().sum() # nan件数
+    # 空文字の数（文字列型の列のみチェック）
+    empty_str = pd.Series({col: (df[col] == '').sum() if df[col].dtype == 'object' else 0 for col in df.columns})
+    summary["empty_str"] = empty_str
+    # NaN + 空文字の合計
+    summary["missing_total"] = summary["nan_cnt"] + summary["empty_str"]
+
+    # 数値列の統計量
+    desc = df.describe().T[['mean', 'std', 'min', '25%', '50%', '75%', 'max']]
+
+    summary = summary.join(desc)
+
+    return summary

@@ -1,5 +1,6 @@
 import pandas as pd
 from scipy import stats
+import statsmodels.api as sm
 
 def calc_corr_with_target_pvalues(
     df: pd.DataFrame,
@@ -61,3 +62,48 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
     summary = summary.join(desc)
 
     return summary
+
+
+
+def standardize_df(df: pd.DataFrame, cols: list = None) -> pd.DataFrame:
+    """
+    指定した列（または全数値列）をZスコア標準化して返す関数
+
+    Parameters:
+    - df: 元のDataFrame
+    - cols: 標準化対象のカラムリスト。Noneなら全数値列を対象
+
+    Returns:
+    - 標準化後のDataFrame（元のdfは変更しない）
+    """
+    from sklearn.preprocessing import StandardScaler
+
+    if cols is None:
+        cols = df.select_dtypes(include='number').columns.tolist()
+
+    scaler = StandardScaler()
+    df_scaled = df.copy()
+    df_scaled[cols] = scaler.fit_transform(df[cols])
+
+    return df_scaled
+
+
+
+def fit_multivariate_regression_with_pvalues(df: pd.DataFrame, target_col: str):
+    X = df.drop(columns=[target_col]).select_dtypes(include='number')
+    y = df[target_col]
+
+    X = sm.add_constant(X)  # 定数項（切片）を追加
+
+    model = sm.OLS(y, X).fit()
+
+    # 回帰結果の概要
+    summary = model.summary()
+
+    # 係数とp値をDataFrameで取得
+    coef_pvalues = pd.DataFrame({
+        'coefficient': model.params,
+        'p_value': model.pvalues
+    })
+
+    return model, coef_pvalues, summary

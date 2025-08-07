@@ -1,0 +1,51 @@
+:toc:
+
+= jupytextの使い方
+
+== ライブラリのインストール
+
+[source, bash]
+----
+pip install jupytext
+----
+
+== 使い方
+
+=== notebookをpyファイルに変換
+
+* シンプルなpyファイルに変換
++
+[source, bash]
+----
+jupytext --set-formats ipynb,py:light your_notebook.ipynb
+----
+
+* セルを # %% で区切ったpyファイルに変換（VSCodeなどにおすすめ）
++
+[source, bash]
+----
+jupytext --set-formats ipynb,py:percent your_notebook.ipynb
+----
+
+* マークダウンに変換
++
+[source, bash]
+----
+jupytext --set-formats ipynb,md your_notebook.ipynb
+----
+
+=== pyファイルやmdファイルからipynbに変換
+
+* `.py` から `.ipynb` に変換
++
+[source, bash]
+----
+jupytext your_notebook.py --to ipynb
+----
+
+* `.md` から `.ipynb` に変換
++
+[source, bash]
+----
+jupytext your_notebook.md --to ipynb
+----

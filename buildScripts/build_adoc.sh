@@ -11,16 +11,16 @@ rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
 # .adoc → .html に変換（フォルダ構造を維持）
-find source -name "*.adoc" | while read file; do
-  outdir="$BUILD_DIR/$(dirname "${file#source/}")"
+find sources -name "*.adoc" | while read file; do
+  outdir="$BUILD_DIR/$(dirname "${file#sources/}")"
   mkdir -p "$outdir"
   asciidoctor -D "$outdir" "$file"
 done
 
 # 静的ファイル（画像・CSS・JSなど）をコピー
-find source -type f ! -name "*.adoc" -exec bash -c '
+find sources -type f ! -name "*.adoc" -exec bash -c '
   for f; do
-    out="'"$BUILD_DIR"'/${f#source/}"
+    out="'"$BUILD_DIR"'/${f#sources/}"
     mkdir -p "$(dirname "$out")"
     cp "$f" "$out"
   done

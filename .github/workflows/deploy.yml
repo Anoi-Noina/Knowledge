@@ -3,7 +3,7 @@ name: Build and Deploy AsciiDoc
 on:
   push:
     # このワークフローを起動するブランチ
-    branches: [main]
+    branches: [48-deploy_gh_pages]
 
 jobs:
   build-and-deploy:

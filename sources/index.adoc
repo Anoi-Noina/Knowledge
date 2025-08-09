@@ -1,0 +1,16 @@
+:toc:
+
+
+= 技術メモ
+
+
+== 各種ドキュメントへのリンク
+
+=== Linux系
+* link:Linux/SetupRockyLinux.adoc[Rocky Linuxの設定手順]
+
+=== Pleasanter
+* link:Pleasanter/setup/HowToSetupDockerCompose.adoc[Dockerを使ったPleasanterの構築手順]
+
+=== Python
+* link:Python/Tips/HowToJupytext.adoc[jupytextの使い方]

@@ -14,3 +14,6 @@
 
 === Python
 * link:Python/Tips/HowToJupytext.adoc[jupytextの使い方]
+
+* link:Python/SetupEnv/Poetry/setup_poetry.adoc[poetryの使い方]
+

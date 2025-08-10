@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_container
+    ports:
+      - "10443:443" # HTTPS用ポート
+      - "8080:80" # 必要ならHTTPも
+    volumes:
+      - ./nginx_conf:/etc/nginx/conf.d:ro # 複数の設定ファイルを格納するフォルダ
+      - ./certs:/etc/nginx/certs:ro # 証明書と秘密鍵をマウント
+      - ./html:/usr/share/nginx/html:ro # 静的コンテンツ
+    restart: unless-stopped

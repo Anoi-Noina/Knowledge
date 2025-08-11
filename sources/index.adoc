@@ -37,3 +37,7 @@
 * link:Pleasanter/setup/HowToSetupDockerCompose.adoc[Dockerを使ったPleasanterの構築手順]
 
 
+=== Raspberry Pi
+
+* link:RaspberryPi/Ubuntu/SetupUbuntuDesktop.adoc[Raspberry PiにUbuntu Desktopをインストール]
+

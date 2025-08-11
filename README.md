@@ -3,16 +3,17 @@
 
 ## 本リポジトリについて
 
-各々がまとめておきたいことをまとめておくリポジトリです。
-
-将来的には技術ブログみたいに運営予定。
+- 各々がまとめておきたいことをまとめておくリポジトリです。
+- Github Pagesで公開してます。
+    - https://anoi-noina.github.io/Knowledge/
 
 ### ディレクトリ構成
 
 ```bash
 /
-├─sources # 記事を書くディレクトリ
-└─deploy  # 公開(deploy)用ディレクトリ
+├─Scripts      # 公開はしないスクリプト類を保管する場所
+├─sources      # 記事として公開するドキュメントを保管するするディレクトリ
+└─buildScrips  # Github Action用のスクリプト
 ```
 
 
@@ -24,7 +25,7 @@
     - issueの中でメモレベルで書いておいてもOK
 
 2. 記事にしたいものはissueからブランチ切って、記事を書く
-    - markdownでもasciidocでも形式は何でもOK
+    - asciidocでも形式は何でもOK
 
 3. ある程度まとまったら`Merge Request`出して**main**ブランチに統合
 

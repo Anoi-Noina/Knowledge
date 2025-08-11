@@ -1,0 +1,44 @@
+name: Build and Deploy AsciiDoc
+
+on:
+  push:
+    # このワークフローを起動するブランチ
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    # 実行環境として最新のUbuntuを使用
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリのコードをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Asciidoctorを実行するRubyのセットアップ
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1  # Rubyのバージョンを指定
+
+      # Asciidoctorのインストール
+      - name: Install Asciidoctor
+        run: gem install asciidoctor
+
+      # シェルスクリプトに実行権限を付与
+      - name: Make build script executable
+        run: chmod +x buildScripts/build_adoc.sh
+
+      # AsciidocファイルをHTMLに変換（静的ファイルもコピー）
+      # build_docs.sh 内で以下を実行：
+      - name: Build AsciiDoc and static files
+        run: buildScripts/build_adoc.sh
+
+      # GitHub Pagesへデプロイ（gh-pagesブランチにHTMLをpush）
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          # GitHubが自動で用意する認証トークン
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 公開するディレクトリ（HTML出力先）
+          publish_dir: ./build

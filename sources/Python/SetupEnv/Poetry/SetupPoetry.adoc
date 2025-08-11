@@ -1,0 +1,92 @@
+:toc:
+
+= Poetryの環境設定
+
+== Poetryのインストール
+
+=== Windows環境
+
+. Poetryをインストール
++
+[source, ps]
+----
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+----
+
+. `%APPDATA%\pypoetry\venv\Scripts\` をユーザー環境変数 Path に追加  
+  ※環境によっては `%LOCALAPPDATA%` 配下にインストールされる場合があります。  
+  インストール後に以下で確認可能：
++
+[source, ps]
+----
+where poetry
+----
+
+. インストール確認
++
+[source, ps]
+----
+poetry --version
+>>> Poetry (version 2.0.0)
+----
+
+. 仮想環境をプロジェクト直下に作成する設定
++
+[source, ps]
+----
+poetry config virtualenvs.in-project true
+----
+
+== Poetryの基本操作
+* `poetry add` で `poetry.lock` が生成される
+    ** *poetry.lock* → 正確な依存バージョンを記録
+    ** *pyproject.toml* → バージョン範囲を記述
+
+=== 仮想環境作成
+
+[source, bash]
+----
+# 新規プロジェクト作成
+poetry new プロジェクト名
+
+# 既存プロジェクトにPoetry導入
+poetry init
+
+# 依存パッケージ追加
+poetry add パッケージ名
+
+# 開発用依存パッケージ追加
+poetry add --dev パッケージ名
+
+# 依存削除
+poetry remove パッケージ名
+
+# すでにpoetry.lockがある場合は下記コマンドで環境作成
+poetry install
+----
+
+=== 仮想環境起動
+
+[source, bash]
+----
+# 仮想環境を有効化（推奨）
+# poetry env activate はパスを返すだけなので、source コマンドと組み合わせて実行
+source $(poetry env activate)
+
+# plugin利用時はシェルを直接起動
+poetry self add poetry-plugin-shell
+poetry shell
+
+# スクリプト実行
+poetry run python スクリプト名.py
+
+# 仮想環境の場所確認
+poetry env info
+----
+
+== その他メモ
+* `poetry shell` を使う場合は `poetry-plugin-shell` が必要
+* Windowsでの `poetry self update` は失敗しやすいが、最新版は `poetry self update --preview` も利用可能
+
+== 参考
+* https://python-poetry.org/docs/#installing-with-the-official-installer

@@ -1,0 +1,270 @@
+:toc:
+
+= Ubuntu初期セットアップ手順
+
+== 設定環境
+
+ハードウェア:: Raspberry Pi 4  
+OS:: Ubuntu 24.04 Desktop
+
+== 設定手順
+
+=== SDカードにOSをインストール
+
+Raspberry Pi Imager からインストール（設定はすべてデフォルトのまま）
+
+=== 初回起動後の設定
+
+. 電源投入前に、Raspberry Pi にモニター・キーボード・マウスを接続しておく
+
+. `Welcome` 画面では `English` を選択し、Continue をクリック  
+  コマンドラインは英語のまま利用したいので English を選択しています。
+
+. `Keyboard layout` 画面では `Japanese` を選択し、Continue をクリック  
+  接続するキーボードに合わせて設定してください。
+
+. `Wireless` 画面では `I don't want to connect to a Wi-Fi network right now` を選択し、Continue をクリック  
+  ネットワーク設定は後でコマンドラインから行います。
+
+. `Where are you?` 画面では `Japan Time` を選択し、Continue をクリック
+
+. `Who are you?` 画面でユーザー情報を入力
+
+. セットアップが始まるので、`Applying changes` が表示されるまで待つ
+
+. 再起動が始まり、ログイン画面が表示されるので作成したユーザーでログイン
+
+=== ネットワークの設定
+
+==== 無線LANでの設定
+
+. 初期ファイルをバックアップし、設定用ファイルを作成
++
+[source, bash]
+----
+# 初期ファイルをバックアップ
+$ sudo mv /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml_bk
+
+# 設定用ファイルを作成（読み込み順を考えて数字を大きくする）
+$ sudo cp /etc/netplan/50-cloud-init.yaml_bk /etc/netplan/99-custom.yaml
+----
+
+. 設定ファイルを編集
++
+[source, bash]
+----
+$ sudo nano /etc/netplan/99-custom.yaml
+----
++
+例:
+[source, yaml]
+----
+network:
+  version: 2
+  wifis:
+    wlan0:
+      renderer: NetworkManager
+      dhcp4: true
+      access-points:
+        "[ssid_name]":
+          password: "[password]"
+----
+
+. 設定を反映
++
+[source, bash]
+----
+$ sudo netplan apply
+----
+
+=== apt のミラーサイトを変更
+
+ダウンロード速度向上のため、APT が参照するリポジトリを日本ミラーに変更します。
+
+. 初期ファイルをバックアップし、編集
++
+[source, bash]
+----
+$ sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources_bk
+$ sudo nano /etc/apt/sources.list.d/ubuntu.sources
+----
+
+. ファイル内の `URIs:` の行が複数（ports 用と security 用）あるので、**すべて** の行を日本ミラーに変更  
+  （`ports` の前に `jp.` を追加）
++
+変更前:
+[source, bash]
+----
+URIs: http://ports.ubuntu.com/ubuntu-ports
+URIs: http://ports.ubuntu.com/ubuntu-security
+----
+変更後:
+[source, bash]
+----
+URIs: http://jp.ports.ubuntu.com/ubuntu-ports
+URIs: http://jp.ports.ubuntu.com/ubuntu-security
+----
+
+. 設定を保存して終了
+
+. 再起動
++
+[source, bash]
+----
+$ sudo reboot now
+----
+
+=== パッケージのアップデート
+
+. 日時がずれているとアップデートできないため、現在時刻に合わせる
++
+[source, bash]
+----
+$ sudo date --set='YYYY/MM/DD HH:MM:SS'
+# または NTP サーバーを指定して同期
+$ sudo timedatectl set-ntp true
+----
+
+. パッケージをアップデート
++
+[source, bash]
+----
+$ sudo apt update \
+ && sudo apt upgrade -y \
+ && sudo apt autoremove -y \
+ && sudo apt clean \
+ && sudo reboot now
+----
+
+=== ssh の設定
+
+. ssh サーバーをインストール
++
+[source, bash]
+----
+$ sudo apt install -y openssh-server
+----
+
+. `openssh-server` サービスを有効化
++
+[source, bash]
+----
+# 状態確認
+$ sudo systemctl status ssh
+# 自動起動設定
+$ sudo systemctl enable ssh
+----
+
+. 設定ファイルを編集
++
+[source, bash]
+----
+$ sudo nano /etc/ssh/sshd_config
+----
++
+推奨設定例:
+[source, bash]
+----
+PermitRootLogin no
+PasswordAuthentication no
+----
+
+. サービスを再起動
++
+[source, bash]
+----
+$ sudo systemctl restart ssh
+----
+
+=== 不要なパッケージの削除
+用途に応じて削除してください。
++
+[source, bash]
+----
+$ sudo apt remove -y libreoffice* thunderbird*
+$ sudo apt autoremove -y
+$ sudo reboot now
+----
+
+== 詳細設定
+
+=== ssh を鍵認証に変更
+
+. ローカルPC側で鍵を作成（既にある場合は不要）
++
+[source, bash]
+----
+$ ssh-keygen -t ed25519
+$ scp ~/.ssh/id_ed25519.pub [user_name]@[Host_IP]:/home/[user_name]/.ssh/
+----
+
+. Ubuntu 側で公開鍵を登録
++
+[source, bash]
+----
+$ cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+$ rm ~/.ssh/*.pub
+$ chmod 600 ~/.ssh/authorized_keys
+$ sudo systemctl restart ssh
+----
+
+. 接続確認し、問題なければOK
+
+=== IP アドレスの固定（無線LAN）
+
+. ネットワーク設定ファイルを編集
++
+[source, bash]
+----
+$ sudo nano /etc/netplan/99-custom.yaml
+----
++
+例:
+[source, yaml]
+----
+network:
+  version: 2
+  wifis:
+    wlan0:
+      dhcp4: false
+      addresses: [192.168.1.50/24]
+      routes:
+        - to: default
+          via: 192.168.1.1
+      nameservers:
+        addresses: [192.168.1.1, 8.8.8.8]
+      access-points:
+        "[ssid_name]":
+          password: "[password]"
+----
+
+. 設定を反映
++
+[source, bash]
+----
+$ sudo netplan apply
+----
+
+=== 自動ログイン設定
+
+. 設定ファイルを開く
++
+[source, bash]
+----
+$ sudo nano /etc/gdm3/custom.conf
+----
+
+. 以下のように編集
++
+[source, bash]
+----
+AutomaticLoginEnable = true
+AutomaticLogin = [username]
+----
+
+. 再起動
++
+[source, bash]
+----
+$ sudo reboot now
+----

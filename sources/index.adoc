@@ -9,8 +9,7 @@
 === Linux系
 * link:Linux/SetupRockyLinux.adoc[Rocky Linuxの設定手順]
 
-=== Pleasanter
-* link:Pleasanter/setup/HowToSetupDockerCompose.adoc[Dockerを使ったPleasanterの構築手順]
+
 
 === Python
 
@@ -25,5 +24,16 @@
 ==== ライブラリ系
 
 * link:Python/Tips/HowToJupytext.adoc[jupytextの使い方]
+
+
+=== OSSサービス
+
+==== NGINX
+* link:NGINX/NginxOnDocker.adoc[Dockerを使ったNGINXの構築]
+* link:NGINX/SSLSetting.adoc[NGINXを使ったSSL設定方法]
+
+
+==== Pleasanter
+* link:Pleasanter/setup/HowToSetupDockerCompose.adoc[Dockerを使ったPleasanterの構築手順]
 
 

@@ -446,20 +446,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_sdカードにosをインストール">SDカードにOSをインストール</a></li>
 <li><a href="#_初回起動後の設定">初回起動後の設定</a></li>
 <li><a href="#_ネットワークの設定">ネットワークの設定</a></li>
-<li><a href="#_aptのミラーサイトを変更">aptのミラーサイトを変更</a></li>
+<li><a href="#_apt_のミラーサイトを変更">apt のミラーサイトを変更</a></li>
 <li><a href="#_パッケージのアップデート">パッケージのアップデート</a></li>
-<li><a href="#_sshの設定">sshの設定</a></li>
+<li><a href="#_ssh_の設定">ssh の設定</a></li>
 <li><a href="#_不要なパッケージの削除">不要なパッケージの削除</a></li>
 </ul>
 </li>
 <li><a href="#_詳細設定">詳細設定</a>
 <ul class="sectlevel2">
-<li><a href="#_sshを鍵認証に変更">sshを鍵認証に変更</a></li>
-<li><a href="#_ipアドレスの固定">IPアドレスの固定</a></li>
+<li><a href="#_ssh_を鍵認証に変更">ssh を鍵認証に変更</a></li>
+<li><a href="#_ip_アドレスの固定無線lan">IP アドレスの固定（無線LAN）</a></li>
 <li><a href="#_自動ログイン設定">自動ログイン設定</a></li>
 </ul>
 </li>
-<li><a href="#_参考">参考</a></li>
 </ul>
 </div>
 </div>
@@ -487,7 +486,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_sdカードにosをインストール">SDカードにOSをインストール</h3>
 <div class="paragraph">
-<p>Raspberry Pi imagerからインストール(デフォルトのまま)</p>
+<p>Raspberry Pi Imager からインストール（設定はすべてデフォルトのまま）</p>
 </div>
 </div>
 <div class="sect2">
@@ -495,37 +494,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>電源投入前にRaspberry Piにモニターやキーボードなどを接続しておく</p>
+<p>電源投入前に、Raspberry Pi にモニター・キーボード・マウスを接続しておく</p>
 </li>
 <li>
-<p><code>Welcome</code> 画面では <code>English</code> を選択し、continueをクリック</p>
-<div class="paragraph">
-<p>コマンドラインなどは英語のまま使いたいので、Englishを選択しています。</p>
-</div>
+<p><code>Welcome</code> 画面では <code>English</code> を選択し、Continue をクリック
+コマンドラインは英語のまま利用したいので English を選択しています。</p>
 </li>
 <li>
-<p><code>keyboard layout</code> 画面では <code>Japanese</code> を選択し、continueをクリック</p>
-<div class="paragraph">
-<p>接続するキーボードレイアウトにあわせて設定してください。</p>
-</div>
+<p><code>Keyboard layout</code> 画面では <code>Japanese</code> を選択し、Continue をクリック
+接続するキーボードに合わせて設定してください。</p>
 </li>
 <li>
-<p><code>Wireless</code> 画面では、 <code>I don&#8217;t want to&#8230;&#8203;</code> を選択し、continueをクリック</p>
-<div class="paragraph">
-<p>ネットワークの設定は後からコマンドラインで行います。</p>
-</div>
+<p><code>Wireless</code> 画面では <code>I don&#8217;t want to connect to a Wi-Fi network right now</code> を選択し、Continue をクリック
+ネットワーク設定は後でコマンドラインから行います。</p>
 </li>
 <li>
-<p><code>Where are you?</code> 画面では、<code>Japan Time</code> を選択し、continueをクリック</p>
+<p><code>Where are you?</code> 画面では <code>Japan Time</code> を選択し、Continue をクリック</p>
 </li>
 <li>
-<p><code>Who are you?</code> 画面では、作成するユーザー情報を入力</p>
+<p><code>Who are you?</code> 画面でユーザー情報を入力</p>
 </li>
 <li>
-<p>セットアップが始まるので、Applying changeが表示されるまで待つ</p>
+<p>セットアップが始まるので、<code>Applying changes</code> が表示されるまで待つ</p>
 </li>
 <li>
-<p>再起動が始まり、ログイン画面が表示されるので、ログインする</p>
+<p>再起動が始まり、ログイン画面が表示されるので作成したユーザーでログイン</p>
 </li>
 </ol>
 </div>
@@ -537,45 +530,47 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>初期ファイルをバックアップファイルにして、設定用ファイルを作成</p>
+<p>初期ファイルをバックアップし、設定用ファイルを作成</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># 初期ファイルをバックアップファイルにする（不要かも）
+<pre class="highlight"><code class="language-bash" data-lang="bash"># 初期ファイルをバックアップ
 $ sudo mv /etc/netplan/50-cloud-init.yaml /etc/netplan/50-cloud-init.yaml_bk
 
-# 設定用ファイルをコピー
-# 先頭についている数字が大きいほうがあとに読まれる仕様らしい
-$ sudo cp 50-cloud-init.yaml_bk 99-custom.yaml
-
-$ sudo nano 99-custom.yaml</code></pre>
+# 設定用ファイルを作成（読み込み順を考えて数字を大きくする）
+$ sudo cp /etc/netplan/50-cloud-init.yaml_bk /etc/netplan/99-custom.yaml</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>設定用ファイルを編集する</p>
+<p>設定ファイルを編集</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo nano /etc/netplan/99-custom.yaml</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>例:</p>
+</div>
+</li>
+</ol>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">network:
+<pre>network:
   version: 2
   wifis:
     wlan0:
       renderer: NetworkManager
-      match: {}
       dhcp4: true
       access-points:
         "[ssid_name]":
-          auth:
-            password: "[password]"</code></pre>
+          password: "[password]"</pre>
 </div>
 </div>
-</li>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>設定用ファイルを提供する</p>
+<p>設定を反映</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo netplan apply</code></pre>
@@ -587,47 +582,55 @@ $ sudo nano 99-custom.yaml</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_aptのミラーサイトを変更">aptのミラーサイトを変更</h3>
+<h3 id="_apt_のミラーサイトを変更">apt のミラーサイトを変更</h3>
 <div class="paragraph">
-<p>ダウンロード速度向上のため、aptコマンドが参照するリポジトリをjaに変更</p>
+<p>ダウンロード速度向上のため、APT が参照するリポジトリを日本ミラーに変更します。</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>初期ファイルをバックアップを取り、設定用ファイルを編集</p>
+<p>初期ファイルをバックアップし、編集</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># バックアップとしてコピーしておく
-$ sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources_bk
-
-# 編集
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources_bk
 $ sudo nano /etc/apt/sources.list.d/ubuntu.sources</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p><code>URLs</code> のに`ja`を含めた形に変更する</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">## See the sources.list(5) manual page for further settings.
-Types: deb
-# portsの前にjp.を追加
-URIs: http://jp.ports.ubuntu.com/ubuntu-ports
-
-## Ubuntu security updates. Aside from URIs and Suites,
-## this should mirror your choices in the previous section.
-Types: deb
-# portsの前にjp.を追加
-URIs: http://jp.ports.ubuntu.com/ubuntu-ports</code></pre>
-</div>
+<p>ファイル内の <code>URIs:</code> の行が複数（ports 用と security 用）あるので、<strong>すべて</strong> の行を日本ミラーに変更
+（<code>ports</code> の前に <code>jp.</code> を追加）</p>
+<div class="paragraph">
+<p>変更前:</p>
 </div>
 </li>
-<li>
-<p>再起動する</p>
+</ol>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># 再起動する
-$ sudo reboot now</code></pre>
+<pre>URIs: http://ports.ubuntu.com/ubuntu-ports
+URIs: http://ports.ubuntu.com/ubuntu-security</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>変更後:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">URIs: http://jp.ports.ubuntu.com/ubuntu-ports
+URIs: http://jp.ports.ubuntu.com/ubuntu-security</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>設定を保存して終了</p>
+</li>
+<li>
+<p>再起動</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo reboot now</code></pre>
 </div>
 </div>
 </li>
@@ -639,11 +642,12 @@ $ sudo reboot now</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>日時がずれているとアップデートできないので現在の時刻に合わせる</p>
+<p>日時がずれているとアップデートできないため、現在時刻に合わせる</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo date --set='yyyy/mm/dd hh:mm:ss'
-# NTPサーバー指定してサービス再起動でもOK</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo date --set='YYYY/MM/DD HH:MM:SS'
+# または NTP サーバーを指定して同期
+$ sudo timedatectl set-ntp true</code></pre>
 </div>
 </div>
 </li>
@@ -651,7 +655,11 @@ $ sudo reboot now</code></pre>
 <p>パッケージをアップデート</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo apt update &amp;&amp; sudo apt upgrade -y &amp;&amp; sudo apt autoremove -y &amp;&amp; sudo apt clean &amp;&amp; sudo reboot now</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo apt update \
+ &amp;&amp; sudo apt upgrade -y \
+ &amp;&amp; sudo apt autoremove -y \
+ &amp;&amp; sudo apt clean \
+ &amp;&amp; sudo reboot now</code></pre>
 </div>
 </div>
 </li>
@@ -659,22 +667,22 @@ $ sudo reboot now</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_sshの設定">sshの設定</h3>
+<h3 id="_ssh_の設定">ssh の設定</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>sshに使用するサービスをインストール</p>
+<p>ssh サーバーをインストール</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo apt install openssh-server</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo apt install -y openssh-server</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>`openssh-server`サービスを起動し、自動起動するように設定</p>
+<p><code>openssh-server</code> サービスを有効化</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># サービス起動
+<pre class="highlight"><code class="language-bash" data-lang="bash"># 状態確認
 $ sudo systemctl status ssh
 # 自動起動設定
 $ sudo systemctl enable ssh</code></pre>
@@ -682,26 +690,28 @@ $ sudo systemctl enable ssh</code></pre>
 </div>
 </li>
 <li>
-<p>設定ファイルを開いて、編集する</p>
-<div class="paragraph">
-<p>用途に合わせて設定してください。</p>
-</div>
+<p>設定ファイルを編集</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo nano /etc/ssh/sshd_config</code></pre>
 </div>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># rootユーザーでのログインを禁止
-PermitRootLogin no
-# パスワードを使ったログインを禁止
-PasswordAuthentication no</code></pre>
-</div>
+<div class="paragraph">
+<p>推奨設定例:</p>
 </div>
 </li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>PermitRootLogin no
+PasswordAuthentication no</pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>サービスを再起動する</p>
+<p>サービスを再起動</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo systemctl restart ssh</code></pre>
@@ -714,15 +724,15 @@ PasswordAuthentication no</code></pre>
 <div class="sect2">
 <h3 id="_不要なパッケージの削除">不要なパッケージの削除</h3>
 <div class="paragraph">
-<p>用途に合わせて削除してください。</p>
+<p>用途に応じて削除してください。</p>
+</div>
+<div class="paragraph">
+<p>+</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo apt remove libreoffice* # オープンオフィス
-$ sudo apt remove thunderbird* # メーラー
-
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo apt remove -y libreoffice* thunderbird*
 $ sudo apt autoremove -y
-
 $ sudo reboot now</code></pre>
 </div>
 </div>
@@ -733,104 +743,89 @@ $ sudo reboot now</code></pre>
 <h2 id="_詳細設定">詳細設定</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_sshを鍵認証に変更">sshを鍵認証に変更</h3>
+<h3 id="_ssh_を鍵認証に変更">ssh を鍵認証に変更</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>ローカルPC側で鍵を作成</p>
-<div class="paragraph">
-<p>すでに鍵があれば作業は不要です。</p>
-</div>
+<p>ローカルPC側で鍵を作成（既にある場合は不要）</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ ssh-keygen -t ed25519
-
-# 変更しない場合はEnter
-&gt;&gt;&gt; Enter file in which to save the key:
-
-# パスフレーズを作成する場合は入力
-&gt;&gt;&gt; Enter passphrase (empty for no passphrase):
-&gt;&gt;&gt; Enter same passphrase again:
-
-# サーバー側に公開鍵をコピー
-$ scp id_ed25519.pub [user_name]@[Host IP]:/home/[user_name]/.ssh/</code></pre>
+$ scp ~/.ssh/id_ed25519.pub [user_name]@[Host_IP]:/home/[user_name]/.ssh/</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>Ubuntu側で公開鍵を登録</p>
+<p>Ubuntu 側で公開鍵を登録</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># 公開鍵を登録
-$ cat ~/.ssh/id_ed25519.pub &gt;&gt; ~/.ssh/authorized_keys
-
-# 公開鍵を削除
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ cat ~/.ssh/id_ed25519.pub &gt;&gt; ~/.ssh/authorized_keys
 $ rm ~/.ssh/*.pub
-
-# ファイルの権限を変更
 $ chmod 600 ~/.ssh/authorized_keys
-
-# サービス再起動
 $ sudo systemctl restart ssh</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>接続確認して問題なくssh接続できればOK</p>
+<p>接続確認し、問題なければOK</p>
 </li>
 </ol>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ipアドレスの固定">IPアドレスの固定</h3>
-<div class="sect3">
-<h4 id="_無線lan">無線LAN</h4>
+<h3 id="_ip_アドレスの固定無線lan">IP アドレスの固定（無線LAN）</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>ネットワーク設定ファイルを開く</p>
+<p>ネットワーク設定ファイルを編集</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo nano /etc/netplan/99-custom.yaml</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>例:</p>
+</div>
 </li>
-<li>
-<p>下記のように編集</p>
+</ol>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">network:
+<pre>network:
   version: 2
-    wifis:
-      wlan0:
-        dhcp4: false
-        addresses: [IP-ADDRESS/24]
-        routes:
-          - to: default
-            via: [default gateway]
-        nameservers:
-        addresses: [DNS_IP, 8.8.8.8]
-        optional: true
-        access-points:
-          "[ssid_name]":
-            auth:
-              password: "[password]"</code></pre>
+  wifis:
+    wlan0:
+      dhcp4: false
+      addresses: [192.168.1.50/24]
+      routes:
+        - to: default
+          via: 192.168.1.1
+      nameservers:
+        addresses: [192.168.1.1, 8.8.8.8]
+      access-points:
+        "[ssid_name]":
+          password: "[password]"</pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>設定を反映</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo netplan apply</code></pre>
 </div>
 </div>
 </li>
 </ol>
 </div>
 </div>
-</div>
 <div class="sect2">
 <h3 id="_自動ログイン設定">自動ログイン設定</h3>
-<div class="paragraph">
-<p>Ubuntu起動後、ログイン画面が不要な場合の設定になります。</p>
-</div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>設定用ファイルを開く</p>
+<p>設定ファイルを開く</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo nano /etc/gdm3/custom.conf</code></pre>
@@ -838,58 +833,31 @@ $ sudo systemctl restart ssh</code></pre>
 </div>
 </li>
 <li>
-<p>設定用ファイルに下記内容を追加</p>
+<p>以下のように編集</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># Enabling automatic login
-#  AutomaticLoginEnable = true
-#  AutomaticLogin = user1
-
-# Enabling automatic login
-AutomaticLoginEnable = true
+<pre class="highlight"><code class="language-bash" data-lang="bash">AutomaticLoginEnable = true
 AutomaticLogin = [username]</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>再起動する</p>
+<p>再起動</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo reboot now</code></pre>
 </div>
 </div>
 </li>
-<li>
-<p>再起動後、自動ログインされれば成功</p>
-</li>
 </ol>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_参考">参考</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>不要なパッケージの削除</p>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://tenteroring.org/sierra/?p=3605" class="bare">https://tenteroring.org/sierra/?p=3605</a></p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-08-11 13:03:59 UTC
+Last updated 2025-08-11 13:30:46 UTC
 </div>
 </div>
 </body>

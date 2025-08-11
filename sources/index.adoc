@@ -26,6 +26,8 @@
 * link:Python/Tips/HowToJupytext.adoc[jupytextの使い方]
 
 
+
+
 === OSSサービス
 
 ==== NGINX
@@ -41,3 +43,7 @@
 
 * link:RaspberryPi/Ubuntu/SetupUbuntuDesktop.adoc[Raspberry PiにUbuntu Desktopをインストール]
 
+
+=== Vue
+* link:Vue/SetupVue.adoc[Vueの初期設定手順]
+* link:Vue/HowToDeploy.adoc[Vueのデプロイ手順]

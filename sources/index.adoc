@@ -13,7 +13,17 @@
 * link:Pleasanter/setup/HowToSetupDockerCompose.adoc[Dockerを使ったPleasanterの構築手順]
 
 === Python
+
+==== 環境構築系
+
+* link:Python/SetupEnv/SetupPythonOnMac.adoc[MacPCのPython環境構築]
+* link:Python/SetupEnv/SetupVenv.adoc[venvの使い方]
+* link:Python/SetupEnv/Pyenv/SetupPyenv.adoc[pyenvの使い方]
+* link:Python/SetupEnv/Poetry/SetupPoetry.adoc[poetryの使い方]
+
+
+==== ライブラリ系
+
 * link:Python/Tips/HowToJupytext.adoc[jupytextの使い方]
 
-* link:Python/SetupEnv/Poetry/setup_poetry.adoc[poetryの使い方]
 

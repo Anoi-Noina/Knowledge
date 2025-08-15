@@ -37,6 +37,40 @@ poetry --version
 poetry config virtualenvs.in-project true
 ----
 
+=== Mac
+
+. Poetryをインストール
++
+[source, bash]
+----
+# ユーザーのホームディレクトリに ~/.local/bin/poetry が作成される
+curl -sSL https://install.python-poetry.org | python3 -
+----
+
+. Poetry の実行ファイルがあるディレクトリを PATH に追加
++
+[source, ps]
+----
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zprofile
+source ~/.zprofile
+----
+
+. インストール確認
++
+[source, ps]
+----
+poetry --version
+>>> Poetry (version 2.1.4)
+----
+
+. 仮想環境をプロジェクト直下に作成する設定
++
+[source, ps]
+----
+poetry config virtualenvs.in-project true
+----
+
+
 == Poetryの基本操作
 * `poetry add` で `poetry.lock` が生成される
     ** *poetry.lock* → 正確な依存バージョンを記録

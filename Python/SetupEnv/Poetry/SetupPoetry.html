@@ -443,6 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_poetryのインストール">Poetryのインストール</a>
 <ul class="sectlevel2">
 <li><a href="#_windows環境">Windows環境</a></li>
+<li><a href="#_mac">Mac</a></li>
 </ul>
 </li>
 <li><a href="#_poetryの基本操作">Poetryの基本操作</a>
@@ -488,6 +489,48 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre class="highlight"><code class="language-ps" data-lang="ps">poetry --version
 &gt;&gt;&gt; Poetry (version 2.0.0)</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>仮想環境をプロジェクト直下に作成する設定</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ps" data-lang="ps">poetry config virtualenvs.in-project true</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mac">Mac</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Poetryをインストール</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># ユーザーのホームディレクトリに ~/.local/bin/poetry が作成される
+curl -sSL https://install.python-poetry.org | python3 -</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Poetry の実行ファイルがあるディレクトリを PATH に追加</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ps" data-lang="ps">echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.zprofile
+source ~/.zprofile</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>インストール確認</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ps" data-lang="ps">poetry --version
+&gt;&gt;&gt; Poetry (version 2.1.4)</code></pre>
 </div>
 </div>
 </li>
@@ -600,7 +643,7 @@ poetry env info</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-08-11 13:30:46 UTC
+Last updated 2025-08-15 12:35:55 UTC
 </div>
 </div>
 </body>

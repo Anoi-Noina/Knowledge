@@ -1,0 +1,106 @@
+= GitLab Runner 設定手順（RHEL9 / gotenkusu ユーザー、shell executor）
+
+
+== 既存環境のクリーンアップ
+* rootユーザで実行
+
+```bash
+# system-mode Runner 停止・無効化
+sudo systemctl stop gitlab-runner
+sudo gitlab-runner uninstall
+sudo systemctl daemon-reload
+
+# GitLab Runner パッケージと設定削除
+sudo dnf remove -y gitlab-runner
+sudo rm -rf /etc/gitlab-runner
+
+# デフォルトの runner ユーザーがあれば削除
+sudo userdel -r gitlab-runner || true
+
+# gotenkusu ユーザーとホームディレクトリを削除
+sudo userdel -r gotenkusu || true
+```
+
+---
+
+== GitLab Runner のインストール（RHEL9）
+
+* root で実行
+
+```bash
+# リポジトリ登録スクリプトを実行
+sudo curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh" | sudo bash
+
+# Rocky Linux10用
+sudo os=el dist=9 bash -c "$(curl -L 'https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh')"
+
+# GitLab Runner のインストール
+sudo dnf install -y gitlab-runner
+# dnf install gitlab-runner-17.9.3-1
+```
+
+== ユーザー作成
+
+* root で実行
+
+```bash
+# ユーザー作成
+sudo useradd -m -s /bin/bash gotenkusu
+# パスワード設定（後でssh接続が必須になるため設定しておく）
+sudo passwd gotenkusu
+# ユーザログアウト後もユーザー別の常駐サービスを起動しておく設定
+sudo loginctl enable-linger gotenkusu
+```
+
+
+== gotenkusu ユーザーで GitLab Runner 登録
+
+* gotenkusu でログイン（SSH または su - gotenkusu）
+* 設定は `/home/gotenkusu/.gitlab-runner/config.toml` に保存される
+
+
+```bash
+gitlab-runner register --non-interactive \
+  --name "gotenkusu-shell-runner" \
+  --url "http://192.168.3.102:8080/" \
+  --registration-token "REGISTRATION_TOKEN" \
+  --executor "shell" \
+  --tag-list "test2"
+```
+
+
+== gotenkusu ユーザーで systemd ユーザーサービス作成
+
+* gotenkusu で実行
+
+```bash
+mkdir -p ~/.config/systemd/user
+
+cat <<'EOF' > ~/.config/systemd/user/gitlab-runner.service
+[Unit]
+Description=GitLab Runner (gotenkusu shell executor)
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/gitlab-runner run --working-directory /home/gotenkusu
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+
+```
+
+
+== gotenkusu ユーザーでサービス起動と永続化
+
+* gotenkusu で実行
+
+```bash
+# gotenkusu ユーザーでサービス有効化と起動
+systemctl --user daemon-reload
+systemctl --user enable --now gitlab-runner.service
+systemctl --user status gitlab-runner.service
+```
+

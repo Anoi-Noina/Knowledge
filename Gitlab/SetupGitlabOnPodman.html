@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<title>Dockerを使ったNGINX構築</title>
+<title>podmanを使ったGitlabサービスの構築</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,55 +436,35 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Dockerを使ったNGINX構築</h1>
+<h1>podmanを使ったGitlabサービスの構築</h1>
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_環境">環境</a></li>
+<li><a href="#_構築手順">構築手順</a>
+<ul class="sectlevel2">
+<li><a href="#_gitlabサービスの立ち上げ">Gitlabサービスの立ち上げ</a></li>
+<li><a href="#_gitlab_rbの修正">gitlab.rbの修正</a></li>
+<li><a href="#_サービス登録">サービス登録</a></li>
+<li><a href="#_gitlabへの初回ログイン">Gitlabへの初回ログイン</a></li>
+<li><a href="#_gitlabの設定">Gitlabの設定</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_本ドキュメントのゴール">本ドキュメントのゴール</h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Dockerを使ってNGINXを稼働させる</p>
-</li>
-<li>
-<p>NGINXを稼働させるWebサーバー内のHTMLファイルを表示するところまで</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
 <div class="sect1">
 <h2 id="_環境">環境</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p>ハードウェア</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Raspberry Pi 4</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
 <p>OS</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Ubuntu 24.04.1 LTS</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>前提条件</p>
-<div class="ulist">
-<ul>
-<li>
-<p>DockerおよびDocker Composeのインストール済みであること</p>
+<p>Rocky Linux 10</p>
 </li>
 </ul>
 </div>
@@ -494,95 +474,103 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_手順">手順</h2>
+<h2 id="_構築手順">構築手順</h2>
 <div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>構築時のユーザーは <code>goten</code> を使用</p>
+</li>
+</ul>
+</div>
 <div class="sect2">
-<h3 id="_nginxコンテナの起動">NGINXコンテナの起動</h3>
+<h3 id="_gitlabサービスの立ち上げ">Gitlabサービスの立ち上げ</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>コンテナ用のディレクトリを作成</p>
+<p>podmanがインストールされていることを確認</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ mkdir -p docker/nginx_sample
-$ cd docker/nginx_sample</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash"># podmanがインストールされていることを確認
+podman --version
+// podman version 5.4.0</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>任意のディレクトリに`docker-compose.yml`を作成</p>
+<p>コンテナから使うディレクトリを準備</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: "3"
+<pre class="highlight"><code class="language-bash" data-lang="bash"># コンテナ用のディレクトリを作成
+mkdir -p /home/goten/containers/gitlab
 
-services:
-  nginx:
-    container_name: nginx
-    image: nginx:latest
-    build:
-      ./nginx
+# ディレクトリ移動
+cd /home/goten/containers/gitlab
+
+# マウント用ディレクトリの作成と権限付与
+mkdir ./data ./config ./logs ./backups
+chmod 766 ./data ./config ./logs ./backups</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>マニフェストファイルの作成</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># マニフェストファイルの作成
+nano gitlab_podman.yml</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">apiVersion: v1
+kind: Pod
+metadata:
+  name: gitlab
+  labels:
+    app: gitlab
+spec:
+  containers:
+  - name: gitlab
+    image: docker.io/gitlab/gitlab-ee:17.8.1-ee.0
     ports:
-      - "14080:80"
-    volumes:
-      - .nginx/html:/usr/share/nginx/html
-      - .nginx/conf.d:/etc/nginx/conf.d # nginxのconf.dをマウント</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>マウント用のフォルダを作成</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ mkdir -p ./nginx/html
-$ mkdir -p ./nginx/conf.d</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>confディレクトリにnginxのconfファイルを作成</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ nano ./nginx/conf.d/default.conf</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>confファイルを編集する</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-conf" data-lang="conf">server {
-    listen       80;
-    server_name  localhost;
-    location / {
-        # docker内のディレクトリを指定
-        root /usr/share/nginx/html;
-        index  index.html index.htm;
-    }
-}</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>HTMLファイルを作成する</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ nano ./nginx/html/index.html</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>HTMLファイルを編集する</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-html" data-lang="html">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;Welcome to NGINX&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Hello from NGINX running in Docker Compose!&lt;/h1&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
+      - containerPort: 80
+        hostPort: 8080
+    env:
+      - name: GITLAB_OMNIBUS_CONFIG
+        value: |
+          external_url 'http://192.168.3.102:8080'
+          nginx['listen_port'] = 80
+    volumeMounts:
+      - mountPath: /var/opt/gitlab
+        name: gitlab-data
+      - mountPath: /etc/gitlab
+        name: gitlab-config
+      - mountPath: /var/log/gitlab
+        name: gitlab-logs
+      - mountPath: /var/opt/gitlab/backups/
+        name: gitlab-bk
+    resources:
+      limits:
+        memory: "6Gi"
+
+  volumes:
+    - name: gitlab-data
+      hostPath:
+        path: /home/goten/containers/gitlab/data
+        type: DirectoryOrCreate
+    - name: gitlab-config
+      hostPath:
+        path: /home/goten/containers/gitlab/config
+        type: DirectoryOrCreate
+    - name: gitlab-logs
+      hostPath:
+        path: /home/goten/containers/gitlab/logs
+        type: DirectoryOrCreate
+    - name: gitlab-bk
+      hostPath:
+        path: /home/goten/containers/gitlab/backups
+        type: DirectoryOrCreate</code></pre>
 </div>
 </div>
 </li>
@@ -590,14 +578,198 @@ $ mkdir -p ./nginx/conf.d</code></pre>
 <p>コンテナを起動する</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ docker compose up -d</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash"># コンテナの起動
+$ podman play kube gitlab_podman.yml
+
+# コンテナが起動していることを確認
+$ podman pod ps
+
+# ログを見るコマンド
+$ podman pod logs -f gitlab
+
+# ブラウザからアクセスするとGitlabのログイン画面が表示される</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gitlab_rbの修正">gitlab.rbの修正</h3>
+<div class="paragraph">
+<p>標準設定のままだとメモリ使用量がかなり高くなりGitlabが重くなるので設定を変更する</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># 一旦コンテナを停止し削除
+$ podman pod stop gitlab
+$ podman pod rm gitlab
+
+# マウント先にあるgitlab.rbの中にあるpuma['worker_processes']を=2にする
+# コメントアウトされている場合は解除する
+$ nano /home/goten/containers/gitlab/config/gitlab.rb
+
+# コンテナを再度起動
+$ podman play kube gitlab_podman.yml
+
+# コンテナが起動していることを確認
+$ podman pod ps
+
+# メモリ使用量が上限近くにないことを確認
+$ podman stats gitlab-gitlab</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_サービス登録">サービス登録</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>.kube</code> ファイルを作成</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ nano gitlab-podman.kube</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-kube" data-lang="kube">[Unit]
+Description=Gitlab-Origin Service
+
+[Kube]
+Yaml=/home/goten/containers/gitlab/gitlab_podman.yml
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target default.target</code></pre>
 </div>
 </div>
 </li>
 <li>
-<p>14080番ポートにアクセスして、 <code>index.html</code> の内容が表示されたことを確認</p>
+<p>systemctlから起動してサービスとして操作する</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># ファイルをコピー
+$ cp gitlab-podman.kube /etc/containers/systemd/
+
+# リロード
+$ systemctl daemon-reload
+
+# ステータス確認
+$ systemctl status gitlab-podman.service
+&gt;&gt;&gt;○ gitlab-origin.service - Gitlab-Origin Service
+&gt;&gt;&gt;    Loaded: loaded (/etc/containers/systemd/gitlab-origin.kube; generated)
+&gt;&gt;&gt;    Active: inactive (dead)
+
+# 一度podmanからコンテナを停止
+$ podman pod stop gitlab
+
+# systemctlから起動
+$ systemctl start gitlab-podman.service
+
+# ステータス確認
+$ systemctl status gitlab-origin.service
+&gt;&gt;&gt; ● gitlab-origin.service - gitlab-origin Service
+&gt;&gt;&gt;     Loaded: loaded (/etc/containers/systemd/gitlab-origin.kube; generated)
+&gt;&gt;&gt;     Active: active (running) since Thu 2025-02-06 18:28:36 JST; 42s ago
+&gt;&gt;&gt;     Main PID: 1015 (conmon)
+
+
+journalctl -xeu gitlab-podman.service</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>ブラウザからサービスにアクセスできることを確認</p>
 </li>
 </ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gitlabへの初回ログイン">Gitlabへの初回ログイン</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>パスワードが書かれたファイルは24時間で削除される</p>
+</li>
+<li>
+<p>ユーザーIDは <code>root</code></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>rootユーザーでログイン</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># パスワードを取得する
+podman exec -it gitlab-gitlab cat etc/gitlab/initial_root_password
+
+Password: [password]</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>ログイン後、ユーザーアイコンから <code>Edit profile</code> を選択</p>
+</li>
+<li>
+<p><code>root</code> ユーザーのパスワードを変更する</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gitlabの設定">Gitlabの設定</h3>
+<div class="sect3">
+<h4 id="_ログイン画面のユーザー作成ボタンを削除">ログイン画面のユーザー作成ボタンを削除</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>admin権限を持つユーザーでログイン</p>
+</li>
+<li>
+<p><code>Admin&gt;Settings&gt;General</code> を開き、 <code>Sign-up restrictions</code> の下記のチェックを外す</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Sign-up enabled</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>Save Changes</code> をクリック</p>
+</li>
+<li>
+<p>ログイン画面のユーザー登録ボタンが消えていることを確認</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_git_cloneで使用するhttpurlにポート番号を含める">Git cloneで使用するHttpURLにポート番号を含める</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>admin権限を持つユーザーでログイン</p>
+</li>
+<li>
+<p><code>Admin&gt;Settings&gt;General</code> を開き、 <code>Visibility and access controls</code> を開く</p>
+</li>
+<li>
+<p><code>Custom Git clone URL for HTTP(S)</code> にポートを含めたURLを入力</p>
+</li>
+<li>
+<p><code>Save Changes</code> をクリック</p>
+</li>
+<li>
+<p>リポジトリからのClone用URLにポートが含まれたことを確認</p>
+</li>
+</ol>
+</div>
 </div>
 </div>
 </div>

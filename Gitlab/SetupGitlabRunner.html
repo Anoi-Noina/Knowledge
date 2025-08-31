@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.23">
-<title>Dockerを使ったNGINX構築</title>
+<title>GitLab Runner 設定手順（RHEL9 / gotenkusu ユーザー、shell executor）</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,168 +436,159 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Dockerを使ったNGINX構築</h1>
+<h1>GitLab Runner 設定手順（RHEL9 / gotenkusu ユーザー、shell executor）</h1>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_本ドキュメントのゴール">本ドキュメントのゴール</h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Dockerを使ってNGINXを稼働させる</p>
-</li>
-<li>
-<p>NGINXを稼働させるWebサーバー内のHTMLファイルを表示するところまで</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_環境">環境</h2>
+<h2 id="_既存環境のクリーンアップ">既存環境のクリーンアップ</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p>ハードウェア</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Raspberry Pi 4</p>
+<p>rootユーザで実行</p>
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p>OS</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Ubuntu 24.04.1 LTS</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>前提条件</p>
-<div class="ulist">
-<ul>
-<li>
-<p>DockerおよびDocker Composeのインストール済みであること</p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_手順">手順</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_nginxコンテナの起動">NGINXコンテナの起動</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>コンテナ用のディレクトリを作成</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ mkdir -p docker/nginx_sample
-$ cd docker/nginx_sample</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>任意のディレクトリに`docker-compose.yml`を作成</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: "3"
+<pre class="highlight"><code class="language-bash" data-lang="bash"># system-mode Runner 停止・無効化
+sudo systemctl stop gitlab-runner
+sudo gitlab-runner uninstall
+sudo systemctl daemon-reload
 
-services:
-  nginx:
-    container_name: nginx
-    image: nginx:latest
-    build:
-      ./nginx
-    ports:
-      - "14080:80"
-    volumes:
-      - .nginx/html:/usr/share/nginx/html
-      - .nginx/conf.d:/etc/nginx/conf.d # nginxのconf.dをマウント</code></pre>
+# GitLab Runner パッケージと設定削除
+sudo dnf remove -y gitlab-runner
+sudo rm -rf /etc/gitlab-runner
+
+# デフォルトの runner ユーザーがあれば削除
+sudo userdel -r gitlab-runner || true
+
+# gotenkusu ユーザーとホームディレクトリを削除
+sudo userdel -r gotenkusu || true</code></pre>
 </div>
 </div>
-</li>
+<hr>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_gitlab_runner_のインストールrhel9">GitLab Runner のインストール（RHEL9）</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
 <li>
-<p>マウント用のフォルダを作成</p>
+<p>root で実行</p>
+</li>
+</ul>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ mkdir -p ./nginx/html
-$ mkdir -p ./nginx/conf.d</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash"># リポジトリ登録スクリプトを実行
+sudo curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh" | sudo bash
+
+# Rocky Linux10用
+sudo os=el dist=9 bash -c "$(curl -L 'https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh')"
+
+# GitLab Runner のインストール
+sudo dnf install -y gitlab-runner
+# dnf install gitlab-runner-17.9.3-1</code></pre>
 </div>
 </div>
-</li>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ユーザー作成">ユーザー作成</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
 <li>
-<p>confディレクトリにnginxのconfファイルを作成</p>
+<p>root で実行</p>
+</li>
+</ul>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ nano ./nginx/conf.d/default.conf</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash"># ユーザー作成
+sudo useradd -m -s /bin/bash gotenkusu
+# パスワード設定（後でssh接続が必須になるため設定しておく）
+sudo passwd gotenkusu
+# ユーザログアウト後もユーザー別の常駐サービスを起動しておく設定
+sudo loginctl enable-linger gotenkusu</code></pre>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_gotenkusu_ユーザーで_gitlab_runner_登録">gotenkusu ユーザーで GitLab Runner 登録</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>gotenkusu でログイン（SSH または su - gotenkusu）</p>
 </li>
 <li>
-<p>confファイルを編集する</p>
+<p>設定は <code>/home/gotenkusu/.gitlab-runner/config.toml</code> に保存される</p>
+</li>
+</ul>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-conf" data-lang="conf">server {
-    listen       80;
-    server_name  localhost;
-    location / {
-        # docker内のディレクトリを指定
-        root /usr/share/nginx/html;
-        index  index.html index.htm;
-    }
-}</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">gitlab-runner register --non-interactive \
+  --name "gotenkusu-shell-runner" \
+  --url "http://192.168.3.102:8080/" \
+  --registration-token "REGISTRATION_TOKEN" \
+  --executor "shell" \
+  --tag-list "test2"</code></pre>
 </div>
 </div>
-</li>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_gotenkusu_ユーザーで_systemd_ユーザーサービス作成">gotenkusu ユーザーで systemd ユーザーサービス作成</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
 <li>
-<p>HTMLファイルを作成する</p>
+<p>gotenkusu で実行</p>
+</li>
+</ul>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ nano ./nginx/html/index.html</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">mkdir -p ~/.config/systemd/user
+
+cat &lt;&lt;'EOF' &gt; ~/.config/systemd/user/gitlab-runner.service
+[Unit]
+Description=GitLab Runner (gotenkusu shell executor)
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/gitlab-runner run --working-directory /home/gotenkusu
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF</code></pre>
 </div>
 </div>
-</li>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_gotenkusu_ユーザーでサービス起動と永続化">gotenkusu ユーザーでサービス起動と永続化</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
 <li>
-<p>HTMLファイルを編集する</p>
+<p>gotenkusu で実行</p>
+</li>
+</ul>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-html" data-lang="html">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;Welcome to NGINX&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Hello from NGINX running in Docker Compose!&lt;/h1&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>コンテナを起動する</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ docker compose up -d</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>14080番ポートにアクセスして、 <code>index.html</code> の内容が表示されたことを確認</p>
-</li>
-</ol>
+<pre class="highlight"><code class="language-bash" data-lang="bash"># gotenkusu ユーザーでサービス有効化と起動
+systemctl --user daemon-reload
+systemctl --user enable --now gitlab-runner.service
+systemctl --user status gitlab-runner.service</code></pre>
 </div>
 </div>
 </div>

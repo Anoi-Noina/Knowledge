@@ -1,0 +1,199 @@
+:toc:
+
+= podmanを使ったGitlabサービスの構築
+
+== 環境
+* OS
+    ** Rocky Linux 10
+
+
+== 構築手順
+
+* 構築時のユーザーは `goten` を使用
+
+=== Gitlabサービスの立ち上げ
+
+. podmanがインストールされていることを確認
++
+[source, bash]
+----
+# podmanがインストールされていることを確認
+podman --version
+// podman version 5.4.0
+----
+
+. コンテナから使うディレクトリを準備
++
+[source, bash]
+----
+# コンテナ用のディレクトリを作成
+mkdir -p /home/goten/containers/gitlab
+
+# ディレクトリ移動
+cd /home/goten/containers/gitlab
+
+# マウント用ディレクトリの作成と権限付与
+mkdir ./data ./config ./logs ./backups
+chmod 766 ./data ./config ./logs ./backups
+----
+
+. マニフェストファイルの作成
+
++
+[source, bash]
+----
+# マニフェストファイルの作成
+nano gitlab_podman.yml
+----
+
++
+[source, yml]
+----
+include::./gitlab_podman.yml[]
+----
+
+. コンテナを起動する
++
+[source, bash]
+----
+# コンテナの起動
+$ podman play kube gitlab_podman.yml
+
+# コンテナが起動していることを確認
+$ podman pod ps
+
+# ログを見るコマンド
+$ podman pod logs -f gitlab
+
+# ブラウザからアクセスするとGitlabのログイン画面が表示される
+----
+
+=== gitlab.rbの修正
+
+標準設定のままだとメモリ使用量がかなり高くなりGitlabが重くなるので設定を変更する
+
+[source, bash]
+----
+# 一旦コンテナを停止し削除
+$ podman pod stop gitlab
+$ podman pod rm gitlab
+
+# マウント先にあるgitlab.rbの中にあるpuma['worker_processes']を=2にする
+# コメントアウトされている場合は解除する
+$ nano /home/goten/containers/gitlab/config/gitlab.rb
+
+# コンテナを再度起動
+$ podman play kube gitlab_podman.yml
+
+# コンテナが起動していることを確認
+$ podman pod ps
+
+# メモリ使用量が上限近くにないことを確認
+$ podman stats gitlab-gitlab
+----
+
+
+=== サービス登録
+
+. `.kube` ファイルを作成
++
+[source, bash]
+----
+$ nano gitlab-podman.kube
+----
+
++
+[source, kube]
+----
+[Unit]
+Description=Gitlab-Origin Service
+
+[Kube]
+Yaml=/home/goten/containers/gitlab/gitlab_podman.yml
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target default.target
+----
+
+. systemctlから起動してサービスとして操作する
++
+[source, bash]
+----
+# ファイルをコピー
+$ cp gitlab-podman.kube /etc/containers/systemd/
+
+# リロード
+$ systemctl daemon-reload
+
+# ステータス確認
+$ systemctl status gitlab-podman.service
+>>>○ gitlab-origin.service - Gitlab-Origin Service
+>>>    Loaded: loaded (/etc/containers/systemd/gitlab-origin.kube; generated)
+>>>    Active: inactive (dead)
+
+# 一度podmanからコンテナを停止
+$ podman pod stop gitlab
+
+# systemctlから起動
+$ systemctl start gitlab-podman.service
+
+# ステータス確認
+$ systemctl status gitlab-origin.service
+>>> ● gitlab-origin.service - gitlab-origin Service
+>>>     Loaded: loaded (/etc/containers/systemd/gitlab-origin.kube; generated)
+>>>     Active: active (running) since Thu 2025-02-06 18:28:36 JST; 42s ago
+>>>     Main PID: 1015 (conmon)
+
+
+journalctl -xeu gitlab-podman.service
+----
+
+. ブラウザからサービスにアクセスできることを確認
+
+=== Gitlabへの初回ログイン
+
+* パスワードが書かれたファイルは24時間で削除される
+* ユーザーIDは `root`
+
+. rootユーザーでログイン
++
+[source, bash]
+----
+# パスワードを取得する
+podman exec -it gitlab-gitlab cat etc/gitlab/initial_root_password
+
+Password: [password]
+----
+
+. ログイン後、ユーザーアイコンから `Edit profile` を選択
+
+. `root` ユーザーのパスワードを変更する
+
+=== Gitlabの設定
+
+==== ログイン画面のユーザー作成ボタンを削除
+
+. admin権限を持つユーザーでログイン
+
+. `Admin>Settings>General` を開き、 `Sign-up restrictions` の下記のチェックを外す
+    * Sign-up enabled
+
+. `Save Changes` をクリック
+
+. ログイン画面のユーザー登録ボタンが消えていることを確認
+
+
+==== Git cloneで使用するHttpURLにポート番号を含める
+
+. admin権限を持つユーザーでログイン
+
+. `Admin>Settings>General` を開き、 `Visibility and access controls` を開く
+
+. `Custom Git clone URL for HTTP(S)` にポートを含めたURLを入力
+
+. `Save Changes` をクリック
+
+. リポジトリからのClone用URLにポートが含まれたことを確認

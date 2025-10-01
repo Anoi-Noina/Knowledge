@@ -1,0 +1,118 @@
+= FastAPI + Podman 学習用手順
+:toc:
+
+== 前提
+* 実行環境: Rocky Linux 10
+* コンテナ操作: podman
+* ホストポート: 30080
+* コンテナポート: 8000
+* イメージ名: fastapi-app:latest
+* ディレクトリ構成:
++
+[source,]
+----
+fastapi-app/
+├── Dockerfile
+├── requirements.txt
+└── main.py
+----
+
+== 1. main.py
+[source,python]
+----
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# CORS設定（学習用: 全オリジン許可）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}
+----
+
+== 2. requirements.txt
+
+[source,]
+----
+fastapi==0.117.1
+uvicorn==0.37.0
+----
+
+== 3. Dockerfile
+[source,dockerfile]
+----
+FROM python:3.12-slim
+
+WORKDIR /app
+COPY . /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+----
+
+== 4. イメージのビルド
+[source,bash]
+----
+podman build -t fastapi-app:latest .
+podman images
+----
+
+* `-t` : イメージ名＋タグを付ける  
+* `podman images` で作成されたイメージを確認  
+
+== 5. コンテナの起動（Podなし）
+[source,bash]
+----
+podman run -d -p 30080:8000 --name fastapi fastapi-app:latest
+----
+
+* `-d` : バックグラウンドで実行  
+* `-p 30080:8000` : ホスト30080 → コンテナ8000  
+* `--name fastapi` : コンテナ名  
+
+== 6. 起動確認
+[source,bash]
+----
+podman ps
+podman logs -f fastapi
+----
+
+* ブラウザでアクセス: http://<ホストIP>:30080/  
+* Swagger UI: http://<ホストIP>:30080/docs  
+
+== 7. コンテナ停止・削除
+
+[source,bash]
+----
+podman stop fastapi
+podman rm fastapi
+----
+
+* 状態確認
+
+[source,bash]
+----
+podman ps      # 起動中
+podman ps -a   # 停止済みも含む
+----
+
+== 8. マニフェスト生成（Pod概念を学習する場合）
+
+* 起動中のコンテナからPodman用のYAMLマニフェストを作成
+* 出力されたマニフェストでは、コンテナが Pod にラップされた形になる
+
+[source,bash]
+----
+podman generate kube fastapi > fastapi-app.yml
+----
+

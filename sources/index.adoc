@@ -25,8 +25,9 @@
 
 * link:Python/Tips/HowToJupytext.adoc[jupytextの使い方]
 
+==== Webアプリ系
 
-
+* link:Python/FastAPI/DeployOnPodman/DeployOnPodmanContainer.adoc[Podmanを使ったfastapiのデプロイ]
 
 === OSSサービス
 

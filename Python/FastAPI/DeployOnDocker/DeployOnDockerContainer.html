@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>Poetryの環境設定</title>
+<title>FastAPI + Docker Compose 学習用手順</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,207 +436,193 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Poetryの環境設定</h1>
+<h1>FastAPI + Docker Compose 学習用手順</h1>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_poetryのインストール">Poetryのインストール</a>
-<ul class="sectlevel2">
-<li><a href="#_windows環境">Windows環境</a></li>
-<li><a href="#_mac">Mac</a></li>
-</ul>
-</li>
-<li><a href="#_poetryの基本操作">Poetryの基本操作</a>
-<ul class="sectlevel2">
-<li><a href="#_仮想環境作成">仮想環境作成</a></li>
-<li><a href="#_仮想環境起動">仮想環境起動</a></li>
-</ul>
-</li>
-<li><a href="#_その他メモ">その他メモ</a></li>
-<li><a href="#_参考">参考</a></li>
+<li><a href="#_前提">前提</a></li>
+<li><a href="#_1_main_py">1. main.py</a></li>
+<li><a href="#_2_requirements_txt">2. requirements.txt</a></li>
+<li><a href="#_3_dockerfile">3. Dockerfile</a></li>
+<li><a href="#_4_docker_compose_yml">4. docker-compose.yml</a></li>
+<li><a href="#_5_コンテナの起動ビルド込み">5. コンテナの起動（ビルド込み）</a></li>
+<li><a href="#_6_起動確認">6. 起動確認</a></li>
+<li><a href="#_7_コンテナ停止削除">7. コンテナ停止・削除</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_poetryのインストール">Poetryのインストール</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_windows環境">Windows環境</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Poetryをインストール</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-ps" data-lang="ps">(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p><code>%APPDATA%\pypoetry\venv\Scripts\</code> をユーザー環境変数 Path に追加
-※環境によっては <code>%LOCALAPPDATA%</code> 配下にインストールされる場合があります。
-インストール後に以下で確認可能：</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-ps" data-lang="ps">where poetry</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>インストール確認</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-ps" data-lang="ps">poetry --version
-&gt;&gt;&gt; Poetry (version 2.0.0)</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>仮想環境をプロジェクト直下に作成する設定</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-ps" data-lang="ps">poetry config virtualenvs.in-project true</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_mac">Mac</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Poetryをインストール</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># ユーザーのホームディレクトリに ~/.local/bin/poetry が作成される
-curl -sSL https://install.python-poetry.org | python3 -</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>Poetry の実行ファイルがあるディレクトリを PATH に追加</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-ps" data-lang="ps">echo 'export PATH="$HOME/.local/bin:$PATH"' &gt;&gt; ~/.zprofile
-source ~/.zprofile</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>インストール確認</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-ps" data-lang="ps">poetry --version
-&gt;&gt;&gt; Poetry (version 2.1.4)</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>仮想環境をプロジェクト直下に作成する設定</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-ps" data-lang="ps">poetry config virtualenvs.in-project true</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_poetryの基本操作">Poetryの基本操作</h2>
+<h2 id="_前提">前提</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><code>poetry add</code> で <code>poetry.lock</code> が生成される</p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>poetry.lock</strong> → 正確な依存バージョンを記録</p>
+<p>実行環境: Ubuntu</p>
 </li>
 <li>
-<p><strong>pyproject.toml</strong> → バージョン範囲を記述</p>
+<p>コンテナ操作: Docker Compose</p>
 </li>
-</ul>
-</div>
+<li>
+<p>ホストポート: 30080</p>
 </li>
-</ul>
-</div>
-<div class="sect2">
-<h3 id="_仮想環境作成">仮想環境作成</h3>
+<li>
+<p>コンテナポート: 8000</p>
+</li>
+<li>
+<p>ディレクトリ構成:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># 新規プロジェクト作成
-poetry new プロジェクト名
-
-# 既存プロジェクトにPoetry導入
-poetry init
-
-# 依存パッケージ追加
-poetry add パッケージ名
-
-# 開発用依存パッケージ追加
-poetry add --dev パッケージ名
-
-# 依存削除
-poetry remove パッケージ名
-
-# すでにpoetry.lockがある場合は下記コマンドで環境作成
-poetry install</code></pre>
+<pre class="highlight"><code>fastapi-app/
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+└── main.py</code></pre>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_仮想環境起動">仮想環境起動</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># 仮想環境を有効化（推奨）
-# poetry env activate はパスを返すだけなので、source コマンドと組み合わせて実行
-source $(poetry env activate)
-
-# plugin利用時はシェルを直接起動
-poetry self add poetry-plugin-shell
-poetry shell
-
-# スクリプト実行
-poetry run python スクリプト名.py
-
-# 仮想環境の場所確認
-poetry env info</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_その他メモ">その他メモ</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><code>poetry shell</code> を使う場合は <code>poetry-plugin-shell</code> が必要</p>
-</li>
-<li>
-<p>Windowsでの <code>poetry self update</code> は失敗しやすいが、最新版は <code>poetry self update --preview</code> も利用可能</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_参考">参考</h2>
+<h2 id="_1_main_py">1. main.py</h2>
 <div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# CORS設定（学習用: 全オリジン許可）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_requirements_txt">2. requirements.txt</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>fastapi==0.117.1
+uvicorn==0.37.0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_dockerfile">3. Dockerfile</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-dockerfile" data-lang="dockerfile">FROM python:3.12-slim
+
+WORKDIR /app
+COPY requirements.txt /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_docker_compose_yml">4. docker-compose.yml</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: "3.9"
+
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi
+    ports:
+      - "30080:8000"
+    volumes:
+      - .:/app</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_5_コンテナの起動ビルド込み">5. コンテナの起動（ビルド込み）</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker compose up -d --build</code></pre>
+</div>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://python-poetry.org/docs/#installing-with-the-official-installer" class="bare">https://python-poetry.org/docs/#installing-with-the-official-installer</a></p>
+<p><code>--build</code> : Dockerfile から最新イメージを作り直して起動</p>
+</li>
+<li>
+<p><code>-d</code> : バックグラウンドで実行</p>
 </li>
 </ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_6_起動確認">6. 起動確認</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker compose ps
+docker compose logs -f fastapi</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ブラウザでアクセス: <a href="http://&lt;ホストIP&gt;:30080/" class="bare">http://&lt;ホストIP&gt;:30080/</a></p>
+</li>
+<li>
+<p>Swagger UI: <a href="http://&lt;ホストIP&gt;:30080/docs" class="bare">http://&lt;ホストIP&gt;:30080/docs</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_7_コンテナ停止削除">7. コンテナ停止・削除</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker compose down</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>停止済み状態も含めて確認</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>docker ps      # 起動中
+docker ps -a   # 停止済みも含む</pre>
+</div>
 </div>
 </div>
 </div>

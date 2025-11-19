@@ -1,0 +1,111 @@
+= FastAPI + Docker Compose 学習用手順
+:toc:
+
+== 前提
+* 実行環境: Ubuntu
+* コンテナ操作: Docker Compose
+* ホストポート: 30080
+* コンテナポート: 8000
+* ディレクトリ構成:
++
+[source,]
+----
+fastapi-app/
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+└── main.py
+----
+
+== 1. main.py
+[source,python]
+----
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# CORS設定（学習用: 全オリジン許可）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello World"}
+----
+
+== 2. requirements.txt
+[source,]
+----
+fastapi==0.117.1
+uvicorn==0.37.0
+----
+
+== 3. Dockerfile
+[source,dockerfile]
+----
+FROM python:3.12-slim
+
+WORKDIR /app
+COPY requirements.txt /app
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+----
+
+== 4. docker-compose.yml
+[source,yaml]
+----
+version: "3.9"
+
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi
+    ports:
+      - "30080:8000"
+    volumes:
+      - .:/app
+----
+
+== 5. コンテナの起動（ビルド込み）
+[source,bash]
+----
+docker compose up -d --build
+----
+
+* `--build` : Dockerfile から最新イメージを作り直して起動  
+* `-d` : バックグラウンドで実行  
+
+== 6. 起動確認
+[source,bash]
+----
+docker compose ps
+docker compose logs -f fastapi
+----
+
+* ブラウザでアクセス: http://<ホストIP>:30080/  
+* Swagger UI: http://<ホストIP>:30080/docs  
+
+== 7. コンテナ停止・削除
+[source,bash]
+----
+docker compose down
+----
+
+* 停止済み状態も含めて確認
+[source,bash]
+----
+docker ps      # 起動中
+docker ps -a   # 停止済みも含む
+----

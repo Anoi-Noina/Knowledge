@@ -1,0 +1,144 @@
+= FastAPI DevContainer 開発環境セットアップ手順（mac + colima）
+
+== 環境
+- M3 macbook air
+
+== 手順
+
+=== 1. colima と docker-cli のインストール
+
+[source,shell]
+----
+brew install colima
+brew install docker
+----
+
+=== 2. colima を起動
+
+[source,shell]
+----
+colima start
+----
+
+[source,shell]
+----
+docker ps
+----
+
+=== 3. プロジェクトフォルダを作成
+
+fastapiを使ったプロジェクトを想定した手順
+
+[source,shell]
+----
+mkdir fastapi-dev
+cd fastapi-dev
+----
+
+=== 4. DevContainer 設定ファイルを生成
+
+VSCode のコマンドパレットで:
+
+```
+Dev Containers: Add Dev Container Configuration Files...
+→ Python 3（Dockerfile 付き）を選択
+```
+
+生成される構成:
+
+----
+fastapi-dev/
+└── .devcontainer/
+      ├── devcontainer.json
+      └── Dockerfile
+----
+
+=== 5. requirements.txt を作成
+
+[source,txt]
+----
+fastapi
+uvicorn
+----
+
+=== 6. Dockerfile を編集（FastAPI 用）
+
+.devcontainer/Dockerfile:
+
+[source,dockerfile]
+----
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+----
+
+== 7. devcontainer.json を編集
+
+.devcontainer/devcontainer.json:
+
+[source,json]
+----
+{
+    "name": "FastAPI Dev",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance"
+            ]
+        }
+    },
+    "forwardPorts": [8000],
+    "remoteUser": "root"
+}
+----
+
+=== 8. Dev Container を起動
+
+VSCode で以下を選択:
+
+```
+Dev Containers: Reopen in Container
+```
+
+=== 9. FastAPI アプリを作成（コンテナ内）
+
+main.py:
+
+[source,python]
+----
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello from devcontainer!"}
+----
+
+=== 10. FastAPI を起動（コンテナ内）
+
+[source,shell]
+----
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+----
+
+アクセス:
+
+```
+http://localhost:8000
+```
+
+== 補足: 内部で起きていること
+
+* colima が Docker 互換の Linux VM を提供している  
+* `docker` コマンドは colima の Docker デーモンに接続している  
+* VSCode は devcontainer.json と Dockerfile をビルドしてコンテナを起動  
+* プロジェクトフォルダが /app にマウントされ、開発環境として使える  

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>Rocky Linuxのセットアップ</title>
+<title>FastAPI DevContainer 開発環境セットアップ手順（mac + colima）</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,7 +436,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Rocky Linuxのセットアップ</h1>
+<h1>FastAPI DevContainer 開発環境セットアップ手順（mac + colima）</h1>
 </div>
 <div id="content">
 <div class="sect1">
@@ -445,14 +445,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>OS</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Rocky Linux 10</p>
-</li>
-</ul>
-</div>
+<p>M3 macbook air</p>
 </li>
 </ul>
 </div>
@@ -462,148 +455,176 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_手順">手順</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_osイメージの準備とインストール">OSイメージの準備とインストール</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Rocky Linuxのイメージをダウンロード</p>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://rockylinux.org/ja-JP/download" class="bare">https://rockylinux.org/ja-JP/download</a></p>
-</li>
-</ul>
+<h3 id="_1_colima_と_docker_cli_のインストール">1. colima と docker-cli のインストール</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">brew install colima
+brew install docker</code></pre>
 </div>
-</li>
-<li>
-<p>balenaEtcherを使ってUSBなどにISOファイルを書き込む</p>
-</li>
-<li>
-<p>Windows PCに作成したUSBを差し込み、F12を連打してブートメニューを表示</p>
-</li>
-<li>
-<p><code>Install Rocky Linux 10.0</code> を選択してEnter</p>
-</li>
-<li>
-<p>インストールが完了するまで待つ</p>
-</li>
-</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_colima_を起動">2. colima を起動</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">colima start</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">docker ps</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_プロジェクトフォルダを作成">3. プロジェクトフォルダを作成</h3>
+<div class="paragraph">
+<p>fastapiを使ったプロジェクトを想定した手順</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">mkdir fastapi-dev
+cd fastapi-dev</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_devcontainer_設定ファイルを生成">4. DevContainer 設定ファイルを生成</h3>
+<div class="paragraph">
+<p>VSCode のコマンドパレットで:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Dev Containers: Add Dev Container Configuration Files...
+→ Python 3（Dockerfile 付き）を選択</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>生成される構成:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>fastapi-dev/
+└── .devcontainer/
+      ├── devcontainer.json
+      └── Dockerfile</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_5_requirements_txt_を作成">5. requirements.txt を作成</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-txt" data-lang="txt">fastapi
+uvicorn</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_6_dockerfile_を編集fastapi_用">6. Dockerfile を編集（FastAPI 用）</h3>
+<div class="listingblock">
+<div class="title">devcontainer/Dockerfile:</div>
+<div class="content">
+<pre class="highlight"><code class="language-dockerfile" data-lang="dockerfile">FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt</code></pre>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_rocky_linux_10の初期設定">Rocky Linux 10の初期設定</h2>
+<h2 id="_7_devcontainer_json_を編集">7. devcontainer.json を編集</h2>
 <div class="sectionbody">
+<div class="listingblock">
+<div class="title">devcontainer/devcontainer.json:</div>
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+    "name": "FastAPI Dev",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance"
+            ]
+        }
+    },
+    "forwardPorts": [8000],
+    "remoteUser": "root"
+}</code></pre>
+</div>
+</div>
 <div class="sect2">
-<h3 id="_初回起動">初回起動</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>"Welcome to Linux" 画面で言語を選択</p>
-</li>
-<li>
-<p><code>Localization</code> → <code>Keyboard</code> を選択し、[+] ボタンで <code>Japanese</code> を追加</p>
+<h3 id="_8_dev_container_を起動">8. Dev Container を起動</h3>
+<div class="paragraph">
+<p>VSCode で以下を選択:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>Dev Containers: Reopen in Container</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_9_fastapi_アプリを作成コンテナ内">9. FastAPI アプリを作成（コンテナ内）</h3>
+<div class="paragraph">
+<p>main.py:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello from devcontainer!"}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_10_fastapi_を起動コンテナ内">10. FastAPI を起動（コンテナ内）</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shell" data-lang="shell">uvicorn main:app --reload --host 0.0.0.0 --port 8000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>アクセス:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>http://localhost:8000</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_補足_内部で起きていること">補足: 内部で起きていること</h2>
+<div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p>優先度を上げ、<code>USキーボード</code> を削除 → <code>Done</code></p>
+<p>colima が Docker 互換の Linux VM を提供している</p>
+</li>
+<li>
+<p><code>docker</code> コマンドは colima の Docker デーモンに接続している</p>
+</li>
+<li>
+<p>VSCode は devcontainer.json と Dockerfile をビルドしてコンテナを起動</p>
+</li>
+<li>
+<p>プロジェクトフォルダが /app にマウントされ、開発環境として使える</p>
 </li>
 </ul>
-</div>
-</li>
-<li>
-<p><code>Localization</code> → <code>Time Zone</code> を選択し、<code>Asia/Tokyo</code> を指定</p>
-</li>
-<li>
-<p><code>User Settings</code> → <code>Root Account</code> で root ユーザーを有効化</p>
-</li>
-<li>
-<p><code>User Settings</code> → <code>User Creation</code> でユーザーを作成</p>
-</li>
-<li>
-<p><code>System</code> → <code>Installation Destination</code> でパーティションを設定</p>
-<div class="ulist">
-<ul>
-<li>
-<p>既存ストレージを全削除して初期化</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p><code>Begin Installation</code> をクリック</p>
-</li>
-<li>
-<p>インストール完了後、<code>Reboot System</code> をクリック → USBを抜く</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_ネットワーク設定">ネットワーク設定</h3>
-<div class="sect3">
-<h4 id="_wi_fi接続">Wi-Fi接続</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># 接続可能なデバイス一覧を表示
-nmcli device status
-
-# 利用可能なWi-Fi一覧を表示
-nmcli device wifi list
-
-# Wi-Fiに接続（SSIDとパスワードを指定）
-nmcli device wifi connect "SSID" password "パスワード"
-
-# IPアドレスを静的に設定
-nmcli connection modify "SSID名" ipv4.addresses 192.168.1.100/24
-
-# デフォルトゲートウェイを設定
-nmcli connection modify "SSID名" ipv4.gateway 192.168.1.1
-
-# DNSサーバーを設定
-nmcli connection modify "SSID名" ipv4.dns "8.8.8.8"
-
-# IPv4設定を手動に切り替え
-nmcli connection modify "SSID名" ipv4.method manual</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_時刻設定">時刻設定</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># NTPサーバーを chrony 設定ファイルに追加
-sudo nano /etc/chrony.conf
-# （ファイル内に以下を追加）
-# server ntp.nict.jp iburst
-
-# chronyd を再起動して反映
-sudo systemctl restart chronyd</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_パッケージの更新">パッケージの更新</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># システム全体のパッケージを最新に更新
-sudo dnf update -y</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_sshの設定">SSHの設定</h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># OpenSSHサーバーをインストール
-sudo dnf install -y openssh-server
-
-# SSHサービスを有効化し、同時に起動
-sudo systemctl enable --now sshd</code></pre>
-</div>
-</div>
 </div>
 </div>
 </div>

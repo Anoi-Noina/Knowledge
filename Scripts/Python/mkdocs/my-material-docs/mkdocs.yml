@@ -1,0 +1,16 @@
+# サイトの基本情報
+site_name: My Awesome Project Docs  # サイトタイトル（ブラウザのタブやヘッダーに表示）
+site_url: https://example.com/     # 任意: サイトの公開URL
+
+# Materialテーマの有効化
+theme:
+    name: windmill
+    # 言語を日本語に設定（サイト内の日付や検索などのUIが日本語になります）
+    language: ja
+
+# ナビゲーション（目次）の定義
+nav:
+    - ホーム: index.md             # docs/index.md に対応
+
+    - 使い方ガイド:                 # 👈 トップレベルの見出し (親)
+        - はじめる: sample_dir/test.md

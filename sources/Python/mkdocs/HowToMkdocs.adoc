@@ -1,0 +1,83 @@
+= MkDocsの使い方 - 環境構築と設定
+
+このドキュメントでは、MkDocsを使ったドキュメントサイト構築手順を説明します。
+
+== 前提
+
+* Pythonがインストールされていること。
+
+== 手順
+
+=== プロジェクトディレクトリの作成
+
+[source, bash]
+----
+# 仮想環境の作成 (推奨)
+python -m venv .venv
+source .venv/bin/activate  # Windowsの場合は .venv\Scripts\activate
+
+# 必要なライブラリとテーマの一括インストール
+# mkdocs本体、Materialテーマ、Windmillテーマ、GitBookテーマを導入
+pip install mkdocs mkdocs-material mkdocs-windmill mkdocs-gitbook
+
+# プロジェクトフォルダの作成と移動 (現在のディレクトリを汚染しないように)
+mkdocs new my-docs-project
+cd my-docs-project
+----
+
+=== MkDocs設定ファイル (mkdocs.yml)
+
+mkdocsの全体設定はyamlファイルで作成します。
+
+[source, yml]
+----
+# サイトの基本情報
+site_name: My Awesome Project Docs 
+site_url: https://example.com/
+
+# 適用するテーマの指定 (インストール済みテーマの中から一つを選ぶ)
+theme:
+    name: material  # 例: Materialテーマを適用
+
+    # 別のテーマを使う場合はこのように切り替える
+    # name: windmill
+    # name: gitbook
+
+    # 言語を日本語に設定
+    language: ja
+
+# ナビゲーション（目次）の定義
+nav:
+    # docs/index.md に対応
+    - ホーム: index.md
+    
+    # 階層的なナビゲーションの例
+    # 注意: この設定を使うには、docs/sample_dir/test.md を作成する必要があります
+    - 使い方ガイド:
+        - はじめる: sample_dir/test.md
+
+# 拡張機能の有効化
+markdown_extensions:
+  # Materialテーマでコードブロックなどのネスト崩れを防ぐために推奨
+  - pymdownx.superfences
+----
+
+=== 起動と確認
+
+ドキュメントの編集・確認はローカルサーバーで行います。
+
+[source, bash]
+----
+# ローカルサーバーの起動とブラウザでの確認 (Ctrl+Cで停止)
+mkdocs serve
+----
+
+=== ビルドと公開準備
+
+最終的な公開用ファイルを生成します。このコマンドを実行すると、プロジェクトルートに「site」フォルダが作成され、その中に静的HTMLファイル群が格納されます。
+
+[source, bash]
+----
+# 静的サイトのビルド
+mkdocs build
+----

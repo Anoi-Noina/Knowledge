@@ -14,3 +14,8 @@ nav:
 
     - 使い方ガイド:                 # 👈 トップレベルの見出し (親)
         - はじめる: sample_dir/test.md
+
+
+markdown_extensions:
+  # コードブロックなどのネスト崩れを防ぐ
+  - pymdownx.superfences

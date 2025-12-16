@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>GitLab Runner 設定手順（RHEL9 / gotenkusu ユーザー、shell executor）</title>
+<title>MkDocsの使い方 - 環境構築と設定</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,159 +436,164 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>GitLab Runner 設定手順（RHEL9 / gotenkusu ユーザー、shell executor）</h1>
+<h1>MkDocsの使い方 - 環境構築と設定</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_既存環境のクリーンアップ">既存環境のクリーンアップ</h2>
+<div id="preamble">
 <div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>rootユーザで実行</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># system-mode Runner 停止・無効化
-sudo systemctl stop gitlab-runner
-sudo gitlab-runner uninstall
-sudo systemctl daemon-reload
-
-# GitLab Runner パッケージと設定削除
-sudo dnf remove -y gitlab-runner
-sudo rm -rf /etc/gitlab-runner
-
-# デフォルトの runner ユーザーがあれば削除
-sudo userdel -r gitlab-runner || true
-
-# gotenkusu ユーザーとホームディレクトリを削除
-sudo userdel -r gotenkusu || true</code></pre>
-</div>
-</div>
-<hr>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_gitlab_runner_のインストールrhel9">GitLab Runner のインストール（RHEL9）</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>root で実行</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># リポジトリ登録スクリプトを実行
-sudo curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh" | sudo bash
-
-# Rocky Linux10用
-sudo os=el dist=9 bash -c "$(curl -L 'https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh')"
-
-# GitLab Runner のインストール
-sudo dnf install -y gitlab-runner
-# dnf install gitlab-runner-17.9.3-1</code></pre>
-</div>
+<div class="paragraph">
+<p>このドキュメントでは、MkDocsを使ったドキュメントサイト構築手順を説明します。</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_ユーザー作成">ユーザー作成</h2>
+<h2 id="_前提">前提</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p>root で実行</p>
+<p>Pythonがインストールされていること。</p>
 </li>
 </ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># ユーザー作成
-sudo useradd -m -s /bin/bash gotenkusu
-# パスワード設定（後でssh接続が必須になるため設定しておく）
-sudo passwd gotenkusu
-# ユーザログアウト後もユーザー別の常駐サービスを起動しておく設定
-sudo loginctl enable-linger gotenkusu</code></pre>
-</div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_gotenkusu_ユーザーで_gitlab_runner_登録">gotenkusu ユーザーで GitLab Runner 登録</h2>
+<h2 id="_手順">手順</h2>
 <div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>gotenkusu でログイン（SSH または su - gotenkusu）</p>
-</li>
-<li>
-<p>設定は <code>/home/gotenkusu/.gitlab-runner/config.toml</code> に保存される</p>
-</li>
-</ul>
+<div class="sect2">
+<h3 id="_プロジェクトディレクトリの作成">プロジェクトディレクトリの作成</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># 仮想環境の作成 (推奨)
+python -m venv .venv
+source .venv/bin/activate  # Windowsの場合は .venv\Scripts\activate
+
+# 必要なライブラリとテーマの一括インストール
+# mkdocs本体、Materialテーマ、Windmillテーマ、GitBookテーマを導入
+pip install mkdocs mkdocs-material mkdocs-windmill mkdocs-gitbook
+
+# プロジェクトフォルダの作成と移動 (現在のディレクトリを汚染しないように)
+mkdocs new my-docs-project
+cd my-docs-project</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_mkdocs設定ファイル_mkdocs_yml">MkDocs設定ファイル (mkdocs.yml)</h3>
+<div class="paragraph">
+<p>mkdocsの全体設定はyamlファイルで作成します。</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">gitlab-runner register --non-interactive \
-  --name "gotenkusu-shell-runner" \
-  --url "http://192.168.3.102:8080/" \
-  --registration-token "REGISTRATION_TOKEN" \
-  --executor "shell" \
-  --tag-list "test2"</code></pre>
+<pre class="highlight"><code class="language-yml" data-lang="yml"># サイトの基本情報
+site_name: My Awesome Project Docs  # サイトタイトル（ブラウザのタブやヘッダーに表示）
+site_url: https://example.com/     # 任意: サイトの公開URL
+
+# Materialテーマの有効化
+theme:
+    name: material
+
+    # windmillだとmermaidが表示されない
+    # name: windmill
+
+    # 言語を日本語に設定（サイト内の日付や検索などのUIが日本語になります）
+    language: ja
+
+# cssの適用
+extra_css:
+  - assets/stylesheets/custom.css
+
+# ナビゲーション（目次）の定義
+nav:
+    - ホーム: index.md             # docs/index.md に対応
+    - 使い方ガイド:                 # トップレベルの見出し (親)
+        - はじめる: sample_dir/test.md
+
+
+markdown_extensions:
+  # コードブロックの拡張機能（ネスト対応やカスタム処理を可能にする）
+  - pymdownx.superfences:
+      # カスタムコードブロック (フェンス) の定義
+      custom_fences:
+        # Mermaid図のレンダリング設定
+        - name: mermaid
+          class: mermaid
+          # Mermaidの定義コードをそのままHTMLに出力するためのフォーマット指定
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  # プラグインの有効化
+  - search:
+      # 検索機能の言語設定を日本語に
+      lang: ja</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_gotenkusu_ユーザーで_systemd_ユーザーサービス作成">gotenkusu ユーザーで systemd ユーザーサービス作成</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>gotenkusu で実行</p>
-</li>
-</ul>
+<div class="sect2">
+<h3 id="_起動と確認">起動と確認</h3>
+<div class="paragraph">
+<p>ドキュメントの編集・確認はローカルサーバーで行います。</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">mkdir -p ~/.config/systemd/user
-
-cat &lt;&lt;'EOF' &gt; ~/.config/systemd/user/gitlab-runner.service
-[Unit]
-Description=GitLab Runner (gotenkusu shell executor)
-After=network.target
-
-[Service]
-ExecStart=/usr/bin/gitlab-runner run --working-directory /home/gotenkusu
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=default.target
-EOF</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash"># ローカルサーバーの起動とブラウザでの確認 (Ctrl+Cで停止)
+mkdocs serve</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ビルドと公開準備">ビルドと公開準備</h3>
+<div class="paragraph">
+<p>最終的な公開用ファイルを生成します。このコマンドを実行すると、プロジェクトルートに「site」フォルダが作成され、その中に静的HTMLファイル群が格納されます。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># 静的サイトのビルド
+mkdocs build</code></pre>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_gotenkusu_ユーザーでサービス起動と永続化">gotenkusu ユーザーでサービス起動と永続化</h2>
+<h2 id="_追加対応">追加対応</h2>
 <div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>gotenkusu で実行</p>
-</li>
-</ul>
+<div class="sect2">
+<h3 id="_marpを埋め込む場合">marpを埋め込む場合</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># Node.js環境の初期化
+npm init -y
+
+# Marp CLIのインストール
+npm install @marp-team/marp-cli
+
+# 変換先のディレクトリを作成
+mkdir -p docs/slides
+
+# Marp CLI を使ってスライド (your_slides.md) を HTML に変換する
+npx @marp-team/marp-cli your_slides.md -o docs/slides/your_slides.html --html</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>marpで作ったslideをマークダウンへiframeを使って埋め込む</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash"># gotenkusu ユーザーでサービス有効化と起動
-systemctl --user daemon-reload
-systemctl --user enable --now gitlab-runner.service
-systemctl --user status gitlab-runner.service</code></pre>
+<pre class="highlight"><code class="language-md" data-lang="md"># Marpスライドの表示
+
+&lt;div class="marp-container"&gt;
+  // srcのパスに注意すること
+  &lt;iframe
+    src="../slides/your_slides.html"
+    frameborder="0"
+    allowfullscreen="true"
+    class="marp-iframe"
+    loading="lazy"
+  &gt;&lt;/iframe&gt;
+&lt;/div&gt;</code></pre>
+</div>
 </div>
 </div>
 </div>

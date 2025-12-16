@@ -94,3 +94,44 @@ mkdocs serve
 # 静的サイトのビルド
 mkdocs build
 ----
+
+
+
+== 追加対応
+
+
+=== marpを埋め込む場合
+
+[source, bash]
+----
+# Node.js環境の初期化
+npm init -y
+
+# Marp CLIのインストール
+npm install @marp-team/marp-cli
+
+# 変換先のディレクトリを作成
+mkdir -p docs/slides
+
+# Marp CLI を使ってスライド (your_slides.md) を HTML に変換する
+npx @marp-team/marp-cli your_slides.md -o docs/slides/your_slides.html --html
+
+----
+
+marpで作ったslideをマークダウンへiframeを使って埋め込む
+
+[source, md]
+----
+# Marpスライドの表示
+
+<div class="marp-container">
+  // srcのパスに注意すること
+  <iframe 
+    src="../slides/your_slides.html" 
+    frameborder="0" 
+    allowfullscreen="true" 
+    class="marp-iframe"
+    loading="lazy"
+  ></iframe>
+</div>
+----

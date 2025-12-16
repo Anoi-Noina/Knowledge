@@ -21,7 +21,7 @@ nav:
     - ホーム: index.md             # docs/index.md に対応
     - 使い方ガイド:                 # トップレベルの見出し (親)
         - はじめる: sample_dir/test.md
-
+        - marpテスト: sample_dir/include_marp.md
 
 markdown_extensions:
   # コードブロックの拡張機能（ネスト対応やカスタム処理を可能にする）
@@ -39,3 +39,7 @@ plugins:
   - search:
       # 検索機能の言語設定を日本語に
       lang: ja
+
+# marpスライドのルートディレクトリを固定できる
+# extra_files:
+#   - 'slides/slide.html'

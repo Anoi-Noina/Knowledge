@@ -19,3 +19,5 @@ pleasanter_connection_info.json
 
 # vue用のテストフォルダ
 sample-vite-app
+
+node_modules/

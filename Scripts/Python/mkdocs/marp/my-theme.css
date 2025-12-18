@@ -1,0 +1,57 @@
+/* @theme my-theme */
+
+/* 共通 */
+section {
+  padding: 60px;
+}
+
+/* =====================
+   title : 完全中央
+   ===================== */
+section.title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 縦中央 */
+  align-items: center;     /* 横中央 */
+  text-align: center;
+}
+
+section.title h1 {
+  font-size: 64px;
+}
+
+/* =====================
+   lead : 左寄せ＋縦中央
+   ===================== */
+section.lead {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 縦中央 */
+  align-items: flex-start; /* 左寄せ */
+  text-align: left;
+}
+
+section.lead h1 {
+  font-size: 48px;
+}
+
+/* =====================
+   slide : ヘッダー上固定＋下線
+   ===================== */
+section.slide {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ヘッダー（h1/h2想定） */
+section.slide h1,
+section.slide h2 {
+  margin-top: 0;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #e5e7eb; /* 直線 */
+}
+
+/* ヘッダー下の本文 */
+section.slide > *:not(h1):not(h2) {
+  margin-top: 24px;
+}

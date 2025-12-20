@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>FastAPI + Docker Compose 学習用手順</title>
+<title>Marp</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,193 +436,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>FastAPI + Docker Compose 学習用手順</h1>
-<div id="toc" class="toc">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#_前提">前提</a></li>
-<li><a href="#_1_main_py">1. main.py</a></li>
-<li><a href="#_2_requirements_txt">2. requirements.txt</a></li>
-<li><a href="#_3_dockerfile">3. Dockerfile</a></li>
-<li><a href="#_4_docker_compose_yml">4. docker-compose.yml</a></li>
-<li><a href="#_5_コンテナの起動ビルド込み">5. コンテナの起動（ビルド込み）</a></li>
-<li><a href="#_6_起動確認">6. 起動確認</a></li>
-<li><a href="#_7_コンテナ停止削除">7. コンテナ停止・削除</a></li>
-</ul>
-</div>
+<h1>Marp</h1>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_前提">前提</h2>
+<h2 id="_vscode上でcssファイルをmarpファイルに認識させる方法">VSCode上でcssファイルをmarpファイルに認識させる方法</h2>
 <div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>ctrl+,</code> をクリック</p>
+</li>
+<li>
+<p>ワークスペースを選択し、<code>markdown.marp.themes</code> を選択</p>
+</li>
+<li>
+<p>項目の追加から適用したいcssファイルを開く</p>
 <div class="ulist">
 <ul>
 <li>
-<p>実行環境: Ubuntu</p>
-</li>
-<li>
-<p>コンテナ操作: Docker Compose</p>
-</li>
-<li>
-<p>ホストポート: 30080</p>
-</li>
-<li>
-<p>コンテナポート: 8000</p>
-</li>
-<li>
-<p>ディレクトリ構成:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>fastapi-app/
-├── docker-compose.yml
-├── Dockerfile
-├── requirements.txt
-└── main.py</code></pre>
-</div>
-</div>
+<p>vscodeを開いているディレクトリからのパスになるので注意する</p>
 </li>
 </ul>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_1_main_py">1. main.py</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI()
-
-# CORS設定（学習用: 全オリジン許可）
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello World"}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_2_requirements_txt">2. requirements.txt</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>fastapi==0.117.1
-uvicorn==0.37.0</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_3_dockerfile">3. Dockerfile</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-dockerfile" data-lang="dockerfile">FROM python:3.12-slim
-
-WORKDIR /app
-COPY requirements.txt /app
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . /app
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_4_docker_compose_yml">4. docker-compose.yml</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">version: "3.9"
-
-services:
-  fastapi:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: fastapi
-    ports:
-      - "30080:8000"
-    volumes:
-      - .:/app</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_5_コンテナの起動ビルド込み">5. コンテナの起動（ビルド込み）</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">docker compose up -d --build</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>--build</code> : Dockerfile から最新イメージを作り直して起動</p>
 </li>
-<li>
-<p><code>-d</code> : バックグラウンドで実行</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_6_起動確認">6. 起動確認</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">docker compose ps
-docker compose logs -f fastapi</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>ブラウザでアクセス: <a href="http://&lt;ホストIP&gt;:30080/" class="bare">http://&lt;ホストIP&gt;:30080/</a></p>
-</li>
-<li>
-<p>Swagger UI: <a href="http://&lt;ホストIP&gt;:30080/docs" class="bare">http://&lt;ホストIP&gt;:30080/docs</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_7_コンテナ停止削除">7. コンテナ停止・削除</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">docker compose down</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>停止済み状態も含めて確認</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>docker ps      # 起動中
-docker ps -a   # 停止済みも含む</pre>
-</div>
+</ol>
 </div>
 </div>
 </div>

@@ -1,33 +1,106 @@
+/* =========================================================
+   Marp Custom Theme
+   ========================================================= */
+
 /* @theme my-theme */
 
-/* 共通 */
-section {
-  padding: 60px;
+
+/* =========================================================
+   1. 共通変数
+   ========================================================= */
+:root {
+  /* 色 */
+  --bg-color: #F7F8F9;
+  --text-color: #060606;
+  --muted-text: #3F403F;
+  --accent-color: #2563eb;
+  --border-color: #e5e7eb;
+
+  /* 文字サイズ */
+  --h1-size: 40px;
+  --h2-size: 34px;
+  --h3-size: 30px;
+  --h4-size: 28px;
+  --body-size: 26px;
+
+  /* 行内行間（触りすぎない） */
+  --line-height: 1.35;
+
+  /* 余白 */
+  --section-padding: 60px;
 }
 
-/* =====================
-   title : 完全中央
-   ===================== */
+
+/* =========================================================
+   2. section 共通
+   ========================================================= */
+section {
+  padding: var(--section-padding);
+  background: var(--bg-color);
+  color: var(--text-color);
+
+  font-size: var(--body-size);
+  line-height: var(--line-height);
+
+  max-width: 1280px;
+  margin: 0 auto;
+
+  font-family: "Noto Sans JP", system-ui, sans-serif;
+}
+
+
+/* =========================================================
+   3. タイポグラフィ
+   ========================================================= */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  margin: 0;
+}
+
+h1 { font-size: var(--h1-size); }
+h2 { font-size: var(--h2-size); }
+h3 { font-size: var(--h3-size); }
+h4 {
+  font-size: var(--h4-size);
+  font-weight: 600;
+}
+
+p, li {
+  font-size: var(--body-size);
+}
+
+
+/* =========================================================
+   5. title スライド
+   ========================================================= */
 section.title {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* 縦中央 */
-  align-items: center;     /* 横中央 */
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
 
 section.title h1 {
-  font-size: 64px;
+  font-size: 72px;
+  letter-spacing: 0.05em;
 }
 
-/* =====================
-   lead : 左寄せ＋縦中央
-   ===================== */
+section.title p {
+  margin-top: 20px;
+  font-size: 28px;
+  color: var(--muted-text);
+}
+
+
+/* =========================================================
+   6. lead スライド（文章少なめ）
+   ========================================================= */
 section.lead {
   display: flex;
   flex-direction: column;
-  justify-content: center; /* 縦中央 */
-  align-items: flex-start; /* 左寄せ */
+  justify-content: center;
+  align-items: flex-start;
   text-align: left;
 }
 
@@ -35,23 +108,61 @@ section.lead h1 {
   font-size: 48px;
 }
 
-/* =====================
-   slide : ヘッダー上固定＋下線
-   ===================== */
+
+/* =========================================================
+   7. slide スライド（本文を書く場所）
+   ========================================================= */
 section.slide {
   display: flex;
   flex-direction: column;
 }
 
-/* ヘッダー（h1/h2想定） */
-section.slide h1,
-section.slide h2 {
-  margin-top: 0;
+/* h1 はスライドヘッダー専用 */
+section.slide h1 {
   padding-bottom: 12px;
-  border-bottom: 3px solid #e5e7eb; /* 直線 */
+  border-bottom: 3px solid var(--border-color);
+  color: var(--accent-color);
+  display: inline-block;
+  padding-right: 40px;
 }
 
-/* ヘッダー下の本文 */
-section.slide > *:not(h1):not(h2) {
-  margin-top: 24px;
+/* h2〜h4 と本文の距離 */
+section.slide h2,
+section.slide h3,
+section.slide h4 {
+  margin-bottom: 4px;
+}
+
+/* 本文の行内行間 */
+section.slide p,
+section.slide li {
+  line-height: 1.3;
+}
+
+/* 箇条書きのデフォルト余白を殺す */
+section.slide ul {
+  margin: 0;
+  padding-left: 1em;
+}
+
+/* 本文・箇条書きの余白をリセット */
+section.slide p,
+section.slide ul,
+section.slide ol {
+  margin: 5px;
+}
+
+
+
+
+/* =========================================================
+   8. フッター（ページ番号）
+   ========================================================= */
+section::after {
+  content: attr(data-marpit-pagination);
+  position: absolute;
+  bottom: 10px;
+  right: 30px;
+  font-size: 16px;
+  color: #9ca3af;
 }

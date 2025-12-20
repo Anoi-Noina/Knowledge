@@ -1,11 +1,28 @@
 ---
 marp: true
 theme: my-theme
+paginate: true
 ---
 
 
-<!-- _class: title -->
-# タイトル
+
+
+<!-- _class: slide -->
+# スライドタイトル
+
+## h2
+asdasdafd
+
+- asdasdoijaadad
+
+### h3
+asdasd
+
+#### h4
+asdpoi
+
+- sad
+    - happy
 
 ---
 
@@ -13,14 +30,16 @@ theme: my-theme
 # リードスライド
 
 
+
+
+
+
 ---
 
+
 <!-- _class: slide -->
-# スライドタイトル
-
-- sad
-
-
-
-
+# title
+---
+<!-- _class: title -->
+# タイトル
 ---

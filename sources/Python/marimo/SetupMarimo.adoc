@@ -1,0 +1,51 @@
+:toc:
+
+= marimoの環境設定
+
+== 前提
+
+* uvを使ったPython環境構築が終わっていること
+* vscodeの拡張機能でmarimoをインストールしておく
+
+== 環境構築
+
+. プロジェクトディレクトリの準備
++
+[source, bash]
+----
+# ディレクトリをプロジェクト化
+# ※ディレクトリ名とライブラリ名が衝突しない名前にすること
+uv init --vcs none
+
+# ライブラリをインストール
+uv add marimo
+uv add pandas
+----
+
+. vscodeでコマンドパレットを開き、 `marimo: New notebook` を選択
+
+. 作成したファイルを開くと、右上にmarimoのアイコンが表示されるのでクリックするとnotebook形式で表示される
+
+
+== よく使うmarimoコマンド
+
+`uv run` を介して実行することで、仮想環境のパッケージを適切に使用します。
+
+[source, bash]
+----
+# ipynbをmarimoにコンバート
+uv run marimo convert notebook.ipynb > sample.py
+
+# marimoをipynbにコンバート
+uv run marimo export ipynb sample.py > notebook.ipynb
+
+# marimoの実行結果をHTML化（コードを隠して結果のみ表示）
+uv run marimo export html sample.py --no-include-code > report_simple.html
+
+# marimoの実行結果をHTML化（コードを含めて表示）
+uv run marimo export html sample.py > report_with_code.html
+
+# marimoの実行結果をWebAssembly形式のHTMLにエクスポート
+# ブラウザだけでインタラクティブに動作する独立したファイルになります
+uv run marimo export html-wasm sample.py -o dist/
+----

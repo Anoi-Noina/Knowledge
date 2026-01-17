@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>FastAPI + Podman 学習用手順</title>
+<title>marimoの環境設定</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,19 +436,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>FastAPI + Podman 学習用手順</h1>
+<h1>marimoの環境設定</h1>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#_前提">前提</a></li>
-<li><a href="#_1_main_py">1. main.py</a></li>
-<li><a href="#_2_requirements_txt">2. requirements.txt</a></li>
-<li><a href="#_3_dockerfile">3. Dockerfile</a></li>
-<li><a href="#_4_イメージのビルド">4. イメージのビルド</a></li>
-<li><a href="#_5_コンテナの起動podなし">5. コンテナの起動（Podなし）</a></li>
-<li><a href="#_6_起動確認">6. 起動確認</a></li>
-<li><a href="#_7_コンテナ停止削除">7. コンテナ停止・削除</a></li>
-<li><a href="#_8_マニフェスト生成pod概念を学習する場合">8. マニフェスト生成（Pod概念を学習する場合）</a></li>
+<li><a href="#_環境構築">環境構築</a></li>
+<li><a href="#_よく使うmarimoコマンド">よく使うmarimoコマンド</a></li>
 </ul>
 </div>
 </div>
@@ -459,194 +453,67 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>実行環境: Rocky Linux 10</p>
+<p>uvを使ったPython環境構築が終わっていること</p>
 </li>
 <li>
-<p>コンテナ操作: podman</p>
-</li>
-<li>
-<p>ホストポート: 30080</p>
-</li>
-<li>
-<p>コンテナポート: 8000</p>
-</li>
-<li>
-<p>イメージ名: fastapi-app:latest</p>
-</li>
-<li>
-<p>ディレクトリ構成:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>fastapi-app/
-├── Dockerfile
-├── requirements.txt
-└── main.py</code></pre>
-</div>
-</div>
+<p>vscodeの拡張機能でmarimoをインストールしておく</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_1_main_py">1. main.py</h2>
+<h2 id="_環境構築">環境構築</h2>
 <div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>プロジェクトディレクトリの準備</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+<pre class="highlight"><code class="language-bash" data-lang="bash"># ディレクトリをプロジェクト化
+# ※ディレクトリ名とライブラリ名が衝突しない名前にすること
+uv init --vcs none
 
-app = FastAPI()
+# ライブラリをインストール
+uv add marimo
+uv add pandas</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>vscodeでコマンドパレットを開き、 <code>marimo: New notebook</code> を選択</p>
+</li>
+<li>
+<p>作成したファイルを開くと、右上にmarimoのアイコンが表示されるのでクリックするとnotebook形式で表示される</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_よく使うmarimoコマンド">よく使うmarimoコマンド</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>uv run</code> を介して実行することで、仮想環境のパッケージを適切に使用します。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># ipynbをmarimoにコンバート
+uv run marimo convert notebook.ipynb &gt; sample.py
 
-# CORS設定（学習用: 全オリジン許可）
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# marimoをipynbにコンバート
+uv run marimo export ipynb sample.py &gt; notebook.ipynb
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello World"}</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_2_requirements_txt">2. requirements.txt</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>fastapi==0.117.1
-uvicorn==0.37.0</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_3_dockerfile">3. Dockerfile</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-dockerfile" data-lang="dockerfile">FROM python:3.12-slim
+# marimoの実行結果をHTML化（コードを隠して結果のみ表示）
+uv run marimo export html sample.py --no-include-code &gt; report_simple.html
 
-WORKDIR /app
-COPY . /app
+# marimoの実行結果をHTML化（コードを含めて表示）
+uv run marimo export html sample.py &gt; report_with_code.html
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_4_イメージのビルド">4. イメージのビルド</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">podman build -t fastapi-app:latest .
-podman images</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>-t</code> : イメージ名＋タグを付ける</p>
-</li>
-<li>
-<p><code>podman images</code> で作成されたイメージを確認</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_5_コンテナの起動podなし">5. コンテナの起動（Podなし）</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">podman run -d -p 30080:8000 --name fastapi fastapi-app:latest</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>-d</code> : バックグラウンドで実行</p>
-</li>
-<li>
-<p><code>-p 30080:8000</code> : ホスト30080 → コンテナ8000</p>
-</li>
-<li>
-<p><code>--name fastapi</code> : コンテナ名</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_6_起動確認">6. 起動確認</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">podman ps
-podman logs -f fastapi</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>ブラウザでアクセス: <a href="http://&lt;ホストIP&gt;:30080/" class="bare">http://&lt;ホストIP&gt;:30080/</a></p>
-</li>
-<li>
-<p>Swagger UI: <a href="http://&lt;ホストIP&gt;:30080/docs" class="bare">http://&lt;ホストIP&gt;:30080/docs</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_7_コンテナ停止削除">7. コンテナ停止・削除</h2>
-<div class="sectionbody">
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">podman stop fastapi
-podman rm fastapi</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>状態確認</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">podman ps      # 起動中
-podman ps -a   # 停止済みも含む</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_8_マニフェスト生成pod概念を学習する場合">8. マニフェスト生成（Pod概念を学習する場合）</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>起動中のコンテナからPodman用のYAMLマニフェストを作成</p>
-</li>
-<li>
-<p>出力されたマニフェストでは、コンテナが Pod にラップされた形になる</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">podman generate kube fastapi &gt; fastapi-app.yml</code></pre>
+# marimoの実行結果をWebAssembly形式のHTMLにエクスポート
+# ブラウザだけでインタラクティブに動作する独立したファイルになります
+uv run marimo export html-wasm sample.py -o dist/</code></pre>
 </div>
 </div>
 </div>

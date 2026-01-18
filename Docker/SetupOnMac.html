@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>FastAPI DevContainer 開発環境セットアップ手順（mac + colima）</title>
+<title>AppleSiliconMaｃPCでのDocker環境セットアップ手順（mac + colima）</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,7 +436,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>FastAPI DevContainer 開発環境セットアップ手順（mac + colima）</h1>
+<h1>AppleSiliconMaｃPCでのDocker環境セットアップ手順（mac + colima）</h1>
 </div>
 <div id="content">
 <div class="sect1">
@@ -455,24 +455,79 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_手順">手順</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_1_colima_と_docker_cli_のインストール">1. colima と docker-cli のインストール</h3>
+<h3 id="_1_colima_と_docker_clicomposeのインストール">1. colima と docker-cli、composeのインストール</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>colimaとdockerのインストール</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-shell" data-lang="shell">brew install colima
 brew install docker</code></pre>
 </div>
 </div>
+</li>
+<li>
+<p>docker-composeのインストール</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">brew install docker-compose</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Dockerプラグイン用ディレクトリの作成</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">mkdir -p ~/.docker/cli-plugins</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>シンボリックリンクの作成（Docker CLIへの紐付け）</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">ln -sfn $(brew --prefix)/opt/docker-compose/bin/docker-compose ~/.docker/cli-plugins/docker-compose</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>動作確認</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">colima version
+docker version
+docker compose version</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_2_colima_を起動">2. colima を起動</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>colimaを起動する</p>
+</li>
+</ol>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-shell" data-lang="shell">colima start</code></pre>
+<pre>colima start</pre>
 </div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>dockerコマンドが通ることを確認</p>
+</li>
+</ol>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-shell" data-lang="shell">docker ps</code></pre>
+<pre>docker ps</pre>
 </div>
 </div>
 </div>
@@ -534,11 +589,8 @@ RUN pip install --no-cache-dir -r requirements.txt</code></pre>
 </div>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_7_devcontainer_json_を編集">7. devcontainer.json を編集</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_7_devcontainer_json_を編集">7. devcontainer.json を編集</h3>
 <div class="listingblock">
 <div class="title">devcontainer/devcontainer.json:</div>
 <div class="content">
@@ -559,6 +611,7 @@ RUN pip install --no-cache-dir -r requirements.txt</code></pre>
     "forwardPorts": [8000],
     "remoteUser": "root"
 }</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -631,7 +684,7 @@ def read_root():
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-01-17 13:37:03 UTC
+Last updated 2026-01-18 00:20:30 UTC
 </div>
 </div>
 </body>

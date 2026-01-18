@@ -1,25 +1,59 @@
-= FastAPI DevContainer 開発環境セットアップ手順（mac + colima）
+= AppleSiliconMaｃPCでのDocker環境セットアップ手順（mac + colima）
 
 == 環境
 - M3 macbook air
 
 == 手順
 
-=== 1. colima と docker-cli のインストール
+=== 1. colima と docker-cli、composeのインストール
 
+. colimaとdockerのインストール
++
 [source,shell]
 ----
 brew install colima
 brew install docker
 ----
 
+. docker-composeのインストール
++
+[source,bash]
+----
+brew install docker-compose
+----
+
+. Dockerプラグイン用ディレクトリの作成
++
+[source,bash]
+----
+mkdir -p ~/.docker/cli-plugins
+----
+
+. シンボリックリンクの作成（Docker CLIへの紐付け）
++
+[source,bash]
+----
+ln -sfn $(brew --prefix)/opt/docker-compose/bin/docker-compose ~/.docker/cli-plugins/docker-compose
+----
+
+. 動作確認
++
+[source,bash]
+----
+colima version
+docker version
+docker compose version
+----
+
 === 2. colima を起動
 
+. colimaを起動する
 [source,shell]
 ----
 colima start
 ----
 
+. dockerコマンドが通ることを確認
 [source,shell]
 ----
 docker ps
@@ -75,7 +109,7 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 ----
 
-== 7. devcontainer.json を編集
+=== 7. devcontainer.json を編集
 
 .devcontainer/devcontainer.json:
 

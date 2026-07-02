@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>技術メモ</title>
+<title>Claude CodeでDraw.ioスキルを使う手順</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,126 +436,62 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>技術メモ</h1>
-<div id="toc" class="toc">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#_各種ドキュメントへのリンク">各種ドキュメントへのリンク</a>
-<ul class="sectlevel2">
-<li><a href="#_linux系">Linux系</a></li>
-<li><a href="#_python">Python</a></li>
-<li><a href="#_ossサービス">OSSサービス</a></li>
-<li><a href="#_raspberry_pi">Raspberry Pi</a></li>
-<li><a href="#_vue">Vue</a></li>
-</ul>
-</li>
-</ul>
-</div>
+<h1>Claude CodeでDraw.ioスキルを使う手順</h1>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_各種ドキュメントへのリンク">各種ドキュメントへのリンク</h2>
+<h2 id="_参考">参考</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_linux系">Linux系</h3>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="Linux/SetupRockyLinux.html">Rocky Linuxの設定手順</a></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_python">Python</h3>
-<div class="sect3">
-<h4 id="_環境構築系">環境構築系</h4>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="Python/SetupEnv/SetupPythonOnMac.html">MacPCのPython環境構築</a></p>
-</li>
-<li>
-<p><a href="Python/SetupEnv/SetupVenv.html">venvの使い方</a></p>
-</li>
-<li>
-<p><a href="Python/SetupEnv/Pyenv/SetupPyenv.html">pyenvの使い方</a></p>
-</li>
-<li>
-<p><a href="Python/SetupEnv/Poetry/SetupPoetry.html">poetryの使い方</a></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_ライブラリ系">ライブラリ系</h4>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="Python/Tips/HowToJupytext.html">jupytextの使い方</a></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_webアプリ系">Webアプリ系</h4>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="Python/FastAPI/DeployOnPodman/DeployOnPodmanContainer.html">Podmanを使ったfastapiのデプロイ</a></p>
+<p><a href="https://github.com/jgraph/drawio-mcp#skill&#8212;&#8203;cli" class="bare">https://github.com/jgraph/drawio-mcp#skill&#8212;&#8203;cli</a></p>
 </li>
 </ul>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_ossサービス">OSSサービス</h3>
-<div class="sect3">
-<h4 id="_nginx">NGINX</h4>
+<div class="sect1">
+<h2 id="_前提">前提</h2>
+<div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="NGINX/NginxOnDocker.html">Dockerを使ったNGINXの構築</a></p>
+<p>drawio-mcpを使うためには、Desktop版のdraw.ioがインストールされている必要があります。</p>
 </li>
 <li>
-<p><a href="NGINX/SSLSetting.html">NGINXを使ったSSL設定方法</a></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_pleasanter">Pleasanter</h4>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="Pleasanter/setup/HowToSetupDockerCompose.html">Dockerを使ったPleasanterの構築手順</a></p>
+<p><a href="https://github.com/jgraph/drawio-desktop/releases/tag/v30.2.6" class="bare">https://github.com/jgraph/drawio-desktop/releases/tag/v30.2.6</a></p>
 </li>
 </ul>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_raspberry_pi">Raspberry Pi</h3>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="RaspberryPi/Ubuntu/SetupUbuntuDesktop.html">Raspberry PiにUbuntu Desktopをインストール</a></p>
-</li>
-</ul>
+<div class="sect1">
+<h2 id="_セットアップ">セットアップ</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># プラグインコマンドでskillを追加する
+/plugin marketplace add jgraph/drawio-mcp
+/plugin install drawio@drawio</code></pre>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_vue">Vue</h3>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="Vue/SetupVue.html">Vueの初期設定手順</a></p>
-</li>
-<li>
-<p><a href="Vue/HowToDeploy.html">Vueのデプロイ手順</a></p>
-</li>
-</ul>
 </div>
+</div>
+<div class="sect1">
+<h2 id="_使い方">使い方</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash"># プロンプト例
+drawioを使ってvpc内にec2インスタンスがある図をsvg形式で作成して</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>成果物</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./vpc-ec2.drawio.svg" alt="vpc ec2.drawio"></span></p>
 </div>
 </div>
 </div>
